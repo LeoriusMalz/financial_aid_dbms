@@ -2,7 +2,7 @@
 
 ## 🗃️ ER-Диаграмма
 
-![ER Diagram](database/db_diagram.png)
+![ER Diagram](database/database_diagram.png)
 [🔗](https://dbdiagram.io/d/fin_aid-68e29055d2b621e42255f8e5)
 
 ## 📊 Структура базы данных
