@@ -1,6 +1,11 @@
 # Сервис сбора материальной помощи
 
-## Таблицы
+## 🗃️ ER-Диаграмма
+
+![ER Diagram](database/db_diagram.png)
+[🔗](https://dbdiagram.io/d/fin_aid-68e29055d2b621e42255f8e5)
+
+## 📊 Структура базы данных
 
 ### `users`
 
@@ -14,17 +19,16 @@
 | `tg_id` | `VARCHAR(12)` | `NOT NULL, UNIQUE` | Telegram ID |
 | `tg_nick` | `VARCHAR(50)` | `UNIQUE` | Telegram nickname |
 | `email` | `VARCHAR(50)` | `NOT NULL, UNIQUE` | Учебная почта |
-| `group_id` | `INT` | `NOT NULL` | ID группы |
+| `group_id` | `INT` |  | ID группы |
 | `role_id` | `INT` | `NOT NULL, DEFAULT 1` | ID роли |
-| `depart_id` | `INT` | `DEFAULT NULL` | ID департамента |
 
 ### `groups`
 
 | Поле | Тип данных | Ограничения | Описание |
 |------|------------|-------------|-----------|
 | `group_id` | `INT` | `PRIMARY KEY` | ID группы |
-| `group` | `VARCHAR(10)` | `UNIQUE` | Номер группы |
-| `year` | `INT` |  | Год поступления потока |
+| `group` | `VARCHAR(10)` | `NOT NULL, UNIQUE` | Номер группы |
+| `year` | `INT` | `NOT NULL` | Год поступления потока |
 
 ### `roles`
 
@@ -77,8 +81,8 @@
 | `head_comment` | `VARCHAR(100)` | `DEFAULT ""` | Комментарий старосты/главы |
 | `approve` | `BOOL` | `DEFAULT False` | Одобрение заявления комиссией |
 | `file` | `BLOB` | `NOT NULL` | Путь к файлу с заявлением |
+| `date` | `DATE` | `NOT NULL, DEFAULT DATE('now')` | Дата подачи заявления |
 | `fund_id` | `INT` | `NOT NULL` | ID сбора |
-| `date` | `DATE` | `NOT NULL, DEFAULT (CURRENT_DATE)` | Дата подачи заявления |
 
 ### `categories`
 
@@ -102,7 +106,7 @@
 |------|------------|-------------|-----------|
 | `tag_id` | `INT` | `PRIMARY KEY, AUTO_INCREMENT` | ID тега |
 | `tag` | `VARCHAR(30)` | `NOT NULL, UNIQUE` | Название категории |
-| `user_id` | `INT` |  | ID создателя метки |
+| `creator_id` | `INT` |  | ID создателя метки |
 
 #### `applications_tags`
 (для связи таблиц `applications` и `tags` "многие ко многим")
@@ -111,7 +115,7 @@
 |------|------------|-------------|-----------|
 | `app_id` | `INT` | `PRIMARY KEY, AUTO_INCREMENT` | ID заявления |
 | `tag_id` | `INT` | `PRIMARY KEY` | ID тега |
-| `user_id` | `INT` | `NOT NULL` | ID установившего метку |
+| `installer_id` | `INT` | `NOT NULL` | ID установившего метку |
 
 ---
 
@@ -122,6 +126,6 @@
 | `fund_id` | `INT` | `PRIMARY KEY, AUTO_INCREMENT` | ID сбора |
 | `start_date` | `DATE` | `NOT NULL, DEFAULT DATE('now')` | Дата начала сбора |
 | `end_date` | `DATE` | `NOT NULL, DEFAULT DATE('now', '+5 days'), CHECK (> start_date)` | Дата конца сбора |
-| `user_id` | `INT` | `NOT NULL` | ID создавшего сбор |
-| `table` | `BLOB` | `NOT NULL` | Путь к таблице с заявлениями |
+| `creator_id` | `INT` | `NOT NULL` | ID создавшего сбор |
+| `table_file` | `BLOB` |  | Путь к таблице с заявлениями |
 
