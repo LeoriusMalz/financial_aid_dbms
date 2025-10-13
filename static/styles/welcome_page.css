@@ -1,0 +1,99 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    font-family: "VK Sans Display", serif;
+}
+
+a {
+    text-decoration: none
+}
+
+.title {
+    display: block;
+    position: relative;
+    top: 30px;
+    min-width: 600px;
+
+    font-weight: bolder;
+    font-size: 50px;
+    text-align: center;
+    color: #191818;
+}
+
+.main-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    position: absolute;
+
+    border-style: hidden;
+    background-color: #191818;
+    border-radius: 50px;
+
+    width: 500px;
+    height: 300px;
+    top: 40%;
+
+    font-weight: bold;
+    text-align: center;
+    color: whitesmoke;
+}
+
+.main-block h2 {
+    font-size: 50px;
+    position: absolute;
+
+    top: 0;
+}
+
+.main-block a {
+    border-style: solid;
+    border-radius: 40px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    bottom: 30px;
+
+    padding: 23px;
+    height: 30px;
+    width: 60%;
+
+    color: whitesmoke;
+    font-size: 30px;
+
+    transition: 0.5s;
+}
+
+.signin-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-block a:hover {
+    color: grey;
+    font-size: 35px;
+}
+
+#ya-logo {
+    position: absolute;
+
+    left: 4px;
+    width: 20%;
+}
+
+.frkt-logo {
+    position: relative;
+    display: block;
+    top: 40px;
+}
+
+#rt-logo {
+    height: 100px;
+}

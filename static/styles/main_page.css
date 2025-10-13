@@ -1,0 +1,60 @@
+header {
+    background-color: #ef7a77;
+    height: 40px;
+    border-style: hidden;
+    border-radius: 100px;
+
+    font-family: "VK Sans Display", serif;
+}
+
+.navigation {
+    display: block;
+    position: relative;
+
+    font-weight: bold;
+    font-size: 20px;
+    color: floralwhite;
+}
+
+.navigation__menu {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+
+    justify-content: space-around;
+    align-items: center;
+
+    width: 95%;
+
+    /*max-width: 1200px;*/
+}
+
+.navigation__user {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 63%;
+
+    font-size: 34px;
+
+    transform: translateY(-50%) translateX(50%); /* чтобы иконка была по вертикали по центру */
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navigation__link {
+    text-align: center;
+    display: block;
+    position: relative;
+
+    margin-top: 6px;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navigation__user:hover, .navigation__link:hover {
+    color: #8e0014;
+}
+
