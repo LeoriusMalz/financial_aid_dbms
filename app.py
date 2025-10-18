@@ -2,9 +2,12 @@
 from flask import Flask, redirect, url_for, session, request, render_template_string, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
 from pygments.lexers import templates
+import database.db_manager as db_manager
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "ajskdhA89sdjASD91823jsd0A8sdasdjA0s9d"
+
+sql = db_manager.DatabaseManager()
 
 # Настройка OAuth
 oauth = OAuth(app)
@@ -41,6 +44,7 @@ def authorize():
         user_info = resp.json()
 
         email = user_info.get('default_email')
+        id = user_info.get('id')
 
         if not email or not email.endswith('@phystech.edu'):
             return render_template_string(f"""
@@ -55,7 +59,9 @@ def authorize():
         first_name = first_name[0]
         last_name = user_info.get('last_name')
 
-        avatar_link = "alt_photo.png"
+        sql.execute("put_user.sql", (id, first_name, last_name, patronym, 1, email))
+
+        avatar_link = "static/alt_photo.png"
         if not user_info.get('is_avatar_empty'):
             avatar_link = "https://avatars.yandex.net/get-yapic/%s/islands-200" % user_info.get('default_avatar_id')
 

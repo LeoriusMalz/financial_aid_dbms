@@ -71,33 +71,35 @@ Web-сервис для организации сбора материально
 
 ### `users`
 
-| Поле | Тип данных | Ограничения | Описание |
-|------|------------|-------------|-----------|
-| `user_id` | `INT` | `PRIMARY KEY, AUTO_INCREMENT` | ID пользователя |
-| `name` | `VARCHAR(50)` | `NOT NULL` | Имя пользователя |
-| `surname` | `VARCHAR(50)` | `NOT NULL` | Фамилия пользователя |
-| `patronim` | `VARCHAR(50)` |  | Отчество пользователя |
-| `phone` | `CHAR(18)` | `NOT NULL` | Номер телефона |
-| `tg_id` | `VARCHAR(12)` | `NOT NULL, UNIQUE` | Telegram ID |
-| `tg_nick` | `VARCHAR(50)` | `UNIQUE` | Telegram nickname |
-| `email` | `VARCHAR(50)` | `NOT NULL, UNIQUE` | Учебная почта |
-| `group_id` | `INT` |  | ID группы |
-| `role_id` | `INT` | `NOT NULL, DEFAULT 1` | ID роли |
+| Поле        | Тип данных    | Ограничения                   | Описание              |
+|-------------|---------------|-------------------------------|-----------------------|
+| `user_id`   | `INT`         | `PRIMARY KEY, AUTO_INCREMENT` | ID пользователя       |
+| `name`      | `VARCHAR(30)` | `NOT NULL`                    | Имя пользователя      |
+| `surname`   | `VARCHAR(30)` | `NOT NULL`                    | Фамилия пользователя  |
+| `patronim`  | `VARCHAR(30)` |                               | Отчество пользователя |
+| `phone`     | `CHAR(18)`    | `NOT NULL`                    | Номер телефона        |
+| `tg_id`     | `VARCHAR(12)` | `NOT NULL, UNIQUE`            | Telegram ID           |
+| `tg_nick`   | `VARCHAR(64)` | `UNIQUE`                      | Telegram nickname     |
+| `email`     | `VARCHAR(48)` | `NOT NULL, UNIQUE`            | Учебная почта         |
+| `group_id`  | `INT`         |                               | ID группы             |
+| `role_id`   | `INT`         | `NOT NULL, DEFAULT 1`         | ID роли               |
+| `is_active` | `BOOL`        | `NOT NULL, DEFAULT True`      | Учится ли студент     |
+
 
 ### `groups`
 
 | Поле | Тип данных | Ограничения | Описание |
-|------|------------|-------------|-----------|
+|------|------------|------------|-----------|
 | `group_id` | `INT` | `PRIMARY KEY` | ID группы |
-| `group` | `VARCHAR(10)` | `NOT NULL, UNIQUE` | Номер группы |
+| `group` | `VARCHAR(10)` | `NOT NULL` | Номер группы |
 | `year` | `INT` | `NOT NULL` | Год поступления потока |
 
 ### `roles`
 
-| Поле | Тип данных | Ограничения | Описание |
-|------|------------|-------------|-----------|
-| `role_id` | `INT` | `PRIMARY KEY` | ID роли |
-| `role` | `VARCHAR(50)` | `NOT NULL, UNIQUE` | Название роли |
+| Поле | Тип данных    | Ограничения | Описание |
+|------|---------------|-------------|-----------|
+| `role_id` | `INT`         | `PRIMARY KEY` | ID роли |
+| `role` | `VARCHAR(30)` | `NOT NULL, UNIQUE` | Название роли |
 
 Возможные значения:
 - 1: студент

@@ -57,7 +57,7 @@ body {
 }
 
 .overlay::-webkit-scrollbar-thumb {
-    background: indianred;
+    background: #6e0000;
     border-radius: 10px;
 }
 
@@ -129,7 +129,7 @@ body {
 .user_fullname {
     font-size: 37px;
     font-weight: bolder;
-    color: darkred;
+    color: #3c0000;
     text-align: center;
 
     word-wrap: break-word;
@@ -150,7 +150,7 @@ body {
 
 /* Цвета иконок */
 [id$="icon"] {
-    color: darkred;
+    color: #450000;
 }
 
 /* Учебная информация */
@@ -231,14 +231,14 @@ body {
     font-optical-sizing: auto;
     font-weight: bold;
     font-size: 18px;
-    color: darkred;
+    color: #300000;
 
     margin-top: 10px;
 }
 
 .depart {
     display: inline;
-    background-color: rgba(205, 92, 92, 0.3);
+    background-color: rgba(152, 0, 0, 0.1);
 
     text-align: center;
 
@@ -256,7 +256,7 @@ body {
     font-weight: bold;
     font-size: 40px;
     text-align: center;
-    color: indianred;
+    color: #000000;
 
     margin-top: 20px;
     margin-bottom: 15px;

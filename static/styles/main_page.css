@@ -1,5 +1,5 @@
 header {
-    background-color: #ef7a77;
+    background-color: #191919;
     height: 40px;
     border-style: hidden;
     border-radius: 100px;
@@ -55,6 +55,6 @@ header {
 }
 
 .navigation__user:hover, .navigation__link:hover {
-    color: #8e0014;
+    color: #ff0020;
 }
 
