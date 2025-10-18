@@ -1,0 +1,14 @@
+meta:
+  environment: python
+  toolchain:
+    name: pip
+    version: "3.13"
+build:
+  requirementsPath: requirements.txt
+  useCache: true
+run:
+  scriptName: app.py
+  command: null
+  persistenceMount: /database
+  containerPort: "5000"
+  servicePort: "80"
