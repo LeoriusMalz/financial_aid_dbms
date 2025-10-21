@@ -36,7 +36,7 @@
         </nav>
     </header>
 
-    <div class="overlay" style="display: none">
+    <div class="overlay" style="display: flex">
         <div class="account_menu">
             <div class="account_card">
                 <div class="user_avatar">
@@ -46,35 +46,40 @@
                 <div class="user_fullname">
                     - - -
                 </div>
-                <div class="user_email">
+                <div class="user_email" onclick="copyFunc()"">
                     surname.np@phystech.edu
                 </div>
                 <div class="user_study">
                     <div id="group">
                         <span id="group-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
                         <span id="group-number">
-                            С01-119
+                            Б00-000
                         </span>
                     </div>
                     <div id="course">
                         <span id="course-icon"><i class="fa fa-graduation-cap" aria-hidden="true"></i></span>
                         <span id="course-number">
-                            5 курс
+                            0 курс
                         </span>
                     </div>
                 </div>
                 <div class="user_contacts">
                     <div id="phone">
                         <span id="phone-icon"><i class="fa fa-phone-square" aria-hidden="true"></i></span>
-                        <span id="phone-number">
-                            +79130779320
-                        </span>
+                        <input id="phone-number" type="tel" placeholder="+7 (___) ___-__-__" maxlength="18" minlength="18">
+<!--                        <span id="phone-number1">-->
+<!--                            -->
+<!--                            +79130779320-->
+<!--                        </span>-->
+<!--                        <span style="display: none; font-size: 10px">✅</span>-->
+<!--                        <span style="display: block; position: relative; font-size: 20px; margin-top: 10px; right: 10px">❌</span>-->
                     </div>
                     <div id="telegram">
                         <span id="tg-icon"><i class="fa fa-telegram" aria-hidden="true"></i></span>
-                        <span id="tg-nickname">
-                            @leoriusmalz
-                        </span>
+                        <input id="tg-nickname" pattern="^(?:@.+)$" placeholder="@nickname" minlength="6" maxlength="33">
+<!--                        <span id="tg-nickname">-->
+<!--                            @leoriusmalz-->
+<!--                        </span>-->
                     </div>
                 </div>
                 <div class="user_departments">
@@ -88,7 +93,7 @@
                     </div>
                 </div>
                 <div class="user_role">
-                    <span id="role">Староста курса</span>
+                    <span id="role">Студент</span>
                 </div>
             </div>
             <button class="account_menu_close_btn"></button>

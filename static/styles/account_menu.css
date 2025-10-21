@@ -33,7 +33,7 @@ body {
     font-family: "VK Sans Display", serif;
 
     width: min(650px, 60vw);
-    min-width: 300px;
+    min-width: 400px;
     height: auto;
     max-height: 90vh;
     overflow-y: auto;
@@ -146,6 +146,12 @@ body {
     text-align: center;
 
     margin-top: 0;
+
+    cursor: copy;
+}
+
+.user_email:hover {
+    color: #5e5a5a;
 }
 
 /* Цвета иконок */
@@ -189,19 +195,59 @@ body {
 
 #phone-icon {
     margin-left: 2px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 #tg-icon {
     font-size: 28px;
     margin-left: 1px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-right: -1px;
 }
 
 #phone-number, #tg-nickname {
-    margin-left: 12px;
+    margin-left: 20px;
+    margin-top: 2px;
+
+    background-color: rgba(128, 128, 128, 0);
+    border-radius: 10px;
+    border-width: 0;
 
     word-wrap: break-word;
     overflow-wrap: anywhere;
     white-space: normal;
+    font-size: 30px;
+    font-family: "VK Sans Display", 'serif';
+
+    padding: 4px;
+    height: 32px;
+    width: 275px;
+
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+#phone-number:hover, #tg-nickname:hover {
+    background-color: rgba(128, 128, 128, 0.2);
+    border-style: hidden;
+    border-radius: 10px;
+}
+
+#phone-number.active, #tg-nickname.active {
+    background-color: rgba(128, 128, 128, 0.2);
+    border-style: hidden;
+    border-width: 0;
+    border-radius: 10px;
+}
+
+#phone-number.wrong, #tg-nickname.wrong {
+    background-color: rgba(142, 0, 0, 0.1);
+    border-style: hidden;
+    border-width: 0;
+    border-radius: 10px;
+    color: #6e0000;
 }
 
 /* Информация о департаментах */
@@ -251,7 +297,7 @@ body {
 }
 
 .user_role {
-    display: block;
+    display: none;
 
     font-weight: bold;
     font-size: 40px;
@@ -262,9 +308,47 @@ body {
     margin-bottom: 15px;
 }
 
+/*.tooltip {*/
+/*    position: relative;*/
+/*    display: inline-block;*/
+/*}*/
+
+/*.tooltip .tooltiptext {*/
+/*    display: none;*/
+/*    width: 140px;*/
+/*    background-color: #555;*/
+/*    color: #fff;*/
+/*    text-align: center;*/
+/*    border-radius: 6px;*/
+/*    padding: 5px;*/
+/*    position: absolute;*/
+/*    z-index: 1;*/
+/*    bottom: 150%;*/
+/*    left: 50%;*/
+/*    margin-left: -75px;*/
+/*    opacity: 1;*/
+/*    transition: opacity 0.3s;*/
+/*}*/
+
+/*.tooltip .tooltiptext::after {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    top: 100%;*/
+/*    left: 50%;*/
+/*    margin-left: -5px;*/
+/*    border-width: 5px;*/
+/*    border-style: solid;*/
+/*    border-color: #555 transparent transparent transparent;*/
+/*}*/
+
+/*.tooltip:hover .tooltiptext {*/
+/*    visibility: visible;*/
+/*    opacity: 1;*/
+/*}*/
+
 @font-face {
   font-family: "VK Sans DemiBold";
   src: url("../vk-sans/VKSansDisplayDemiBoldFaux.v100.ttf") format("truetype");
   font-style: normal;
   font-weight: bold;
-} 
+}

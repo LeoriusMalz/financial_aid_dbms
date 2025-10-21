@@ -23,7 +23,7 @@ class DatabaseManager:
         with open(query_path, "r", encoding="utf-8") as f:
             return f.read()
 
-    def execute(self, query_file: str, params: tuple[Any]=(), fetch: bool=False, one: bool=True) -> list[Any] | None | Any:
+    def execute(self, query_file: str, params: tuple=(), fetch: bool=False, one: bool=True) -> list[Any] | None | Any:
         query = self._load_query(query_file)
 
         self.cursor.execute(query, params)
