@@ -36,16 +36,24 @@
 
 // Подгрузка инфы о пользователе при загрузке страницы
 document.addEventListener('DOMContentLoaded', async function () {
-    await getUserInfo();
+    console.log("Loaded!");
+    document.querySelector(`.navigation__link#${window.location.pathname.substring(1)}`).classList.add("active");
+
+    await getUserSession();
 });
 
 // Основные элементы
 const account_menu_close_btn = document.querySelector(".account_menu_close_btn");
 const account_menu_overlay = document.querySelector(".overlay");
 const user_icon = document.querySelector(".navigation__user");
+const navigation_link = document.querySelectorAll(".navigation__link");
 const logout_btn = document.querySelector(".sign_out_btn");
 const phone = document.querySelector("#phone-number");
 const telegram = document.querySelector("#tg-nickname");
+const departments_grid = document.querySelector(".departments_grid");
+const department_block = document.querySelector(".user_departments");
+
+const header = document.querySelector("header");
 
 const canvas = document.createElement("canvas");
 const context = canvas.getContext("2d");
@@ -69,6 +77,19 @@ async function getCourse(year) {
     return course;
 }
 
+async function getUserSession() {
+    const response = await fetch('/api/get_user_session');
+    const expand = await response.json();
+
+    if (expand["status"] === "success") {
+        const data = expand.data;
+
+        user_icon.querySelector("img").src = data['avatar_link'];
+    } else {
+        console.log(expand["status"]);
+    }
+}
+
 // Получение инфы о пользователе
 async function getUserInfo() {
     const response = await fetch('/api/get_user_info');
@@ -77,15 +98,18 @@ async function getUserInfo() {
     if (expand["status"] === "success") {
         const data = expand.data;
 
-        let year = await getCourse(data['year']);
+        let year = Math.min(await getCourse(data['year']), 7) % 7;
         let phone_number = data['phone'];
         let role_title = data['role'];
+
+        const departments = data['departs'];
 
         document.querySelector(".user_fullname").textContent = data['fullname'];
         document.querySelector(".user_email").textContent = data['email'];
         document.querySelector(".user_study #group #group-number").textContent = data['group'];
         document.querySelector(".user_study #course #course-number").textContent = (year.toFixed() || " курс");
         document.querySelector(".user_avatar img").src = data['avatar_link'];
+        user_icon.querySelector("img").src = data['avatar_link'];
 
         if (phone_number !== null) {
             phone.value = `+7 (${phone_number.substring(2, 5)}) ${phone_number.substring(5, 8)}
@@ -102,6 +126,15 @@ async function getUserInfo() {
             role.style.display = "block";
             role.querySelector("#role").textContent = role_title;
         }
+
+        if (departments.length === 1 && departments[0] === '') {
+            department_block.style.display = "none";
+        } else {
+            department_block.style.display = "block";
+            departments_grid.replaceChildren();
+
+            departments.forEach(depart => addDepart(depart));
+        }
     } else {
         console.log(expand["status"], expand["message"]);
     }
@@ -111,6 +144,7 @@ async function getUserInfo() {
 user_icon.addEventListener("click", async () => {
     await getUserInfo();
 
+    header.style.display = "none";
     const text_width_phone = context.measureText(phone.value || phone.placeholder).width;
     phone.style.width = `${text_width_phone + 10}px`;
     const text_width_telegram = context.measureText(telegram.value || telegram.placeholder).width;
@@ -122,6 +156,7 @@ user_icon.addEventListener("click", async () => {
 // Закрытие карточки пользователя (крестик)
 account_menu_close_btn.addEventListener("click", (e) => {
     if (e.button === 0) {
+        header.style.display = "block";
         account_menu_overlay.style.display = "none";
         telegram.classList.remove("wrong");
         phone.classList.remove("wrong");
@@ -131,6 +166,7 @@ account_menu_close_btn.addEventListener("click", (e) => {
 // Закрытие карточки пользователя (оверлей)
 account_menu_overlay.addEventListener("click", (e) => {
     if (e.target === account_menu_overlay && e.button === 0) {
+        header.style.display = "block";
         account_menu_overlay.style.display = "none";
         telegram.classList.remove("wrong");
         phone.classList.remove("wrong");
@@ -296,3 +332,89 @@ function copyFunc() {
     const copyText = document.querySelector(".user_email").textContent;
     window.navigator.clipboard.writeText(copyText);
 }
+
+// Департаменты
+function addDepart(depart_name) {
+    const newDept = document.createElement('span');
+    newDept.classList.add("depart");
+    newDept.textContent = depart_name;
+    departments_grid.appendChild(newDept);
+}
+
+
+const nav_link_funds = document.querySelector(".navigation__link#funds");
+const nav_link_apps = document.querySelector(".navigation__link#apps");
+
+
+
+// async function getFunds() {
+//     const response = await fetch('/api/get_funds');
+//     const expand = await response.json();
+//
+//
+//     const fundings_create_btn = document.querySelector(".funding__create");
+//     const fundings_page = document.querySelector(".funding");
+//
+//     if (expand["status"] === "success") {
+//         const data = expand.data;
+//
+//         if (data[2]) {
+//             fundings_create_btn.style.display = "flex";
+//         } else {
+//             fundings_create_btn.style.display = "none";
+//         }
+//         fundings_page.style.display = "block";
+//         console.log(data);
+//
+//     } else {
+//         console.log(expand["status"]);
+//     }
+// }
+//
+// function highlightLink(link) {
+//     navigation_link.forEach(element =>
+//         element.classList.remove("active")
+//     );
+//
+//     link.classList.add("active");
+//     console.log(link.classList);
+// }
+
+// TODO: добавить в отдельный конфиг
+const pathnames = {
+    "funds": '/funds',
+    "apps": '/apps',
+    "guide": '/guide',
+    "department": '/department',
+    "settings": '/settings',
+}
+
+// TODO: сделать единный листенер для переключения
+// nav_link_funds.addEventListener("click", async (e) => {
+//     // fundings_page.style.display = "block";
+//     const pathname = pathnames["fundings"];
+//
+//     if (window.location.pathname !== pathname) {
+//         window.location.href = pathname
+//     }
+// });
+//
+// nav_link_apps.addEventListener("click", async (e) => {
+//     // fundings_page.style.display = "none";
+//     // console.log("Unpressed");
+//     const pathname = pathnames["applications"];
+//
+//     if (window.location.pathname !== pathname) {
+//         window.location.href = pathname
+//     }
+// });
+
+navigation_link.forEach(link =>
+    link.addEventListener("click", async (e) => {
+        const pathname = pathnames[link.id];
+
+        if (window.location.pathname !== pathname) {
+            window.location.href = pathname
+        }
+    })
+)

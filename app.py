@@ -1,3 +1,4 @@
+import asyncio
 from flask import Flask, redirect, url_for, session, request, render_template_string, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
 from pygments.lexers import templates
@@ -25,7 +26,7 @@ yandex = oauth.register(
 @app.route('/')
 def homepage():
     if session.get('id'):
-        return redirect(url_for('welcome'))
+        return redirect(url_for('apps'))
     return render_template("aux_page.html", link=url_for('login'))
 
 @app.route('/login')
@@ -35,7 +36,10 @@ def login():
     return yandex.authorize_redirect(redirect_uri, prompt='login', force_confirm='yes')
 
 @app.route('/authorize')
-def authorize():
+async def authorize():
+    await sql.connect()
+    await sql.init_db()
+
     try:
         token = yandex.authorize_access_token()
         resp = yandex.get('https://login.yandex.ru/info', token=token)
@@ -58,7 +62,7 @@ def authorize():
         last_name = user_info.get('last_name')
 
         try:
-            sql.execute("put_user.sql", (id, first_name, last_name, patronym, email))
+            await sql.execute("put_user.sql", (id, first_name, last_name, patronym, email))
         except Exception as e:
             print(f"Ошибка при получении информации о пользователе! Описание: {e}")
             return redirect(url_for('homepage'))
@@ -70,18 +74,47 @@ def authorize():
         session['id'] = id
         session['avatar_link'] = avatar_link
 
-        return redirect(url_for('welcome'))
+        return redirect(url_for('apps'))
 
     except Exception as e:
         print(f"Ошибка при авторизации! Описание: {e}")
         return redirect(url_for('homepage'))
 
-@app.route('/welcome')
-def welcome():
+@app.route('/apps')
+def apps():
     if not session.get('id'):
         return redirect(url_for('homepage'))
 
-    return render_template('user_account.html')
+    return render_template('apps_page.html')
+
+@app.route('/funds')
+def funds():
+    if not session.get('id'):
+        return redirect(url_for('homepage'))
+
+    return render_template('funds_page.html')
+
+@app.route('/guide')
+def guide():
+    if not session.get('id'):
+        return redirect(url_for('homepage'))
+
+    return render_template('guide_page.html')
+
+@app.route('/department')
+def department():
+    if not session.get('id'):
+        return redirect(url_for('homepage'))
+
+    return render_template('department_page.html')
+
+@app.route('/settings')
+def settings():
+    if not session.get('id'):
+        return redirect(url_for('homepage'))
+
+    return render_template('settings_page.html')
+
 
 @app.route('/api/logout', methods=['POST'])
 def logout_api():
@@ -96,20 +129,48 @@ def logout_api():
 
     return redirect(redirect_uri)
 
-@app.route('/api/get_user_info', methods=['GET'])
-def get_user_info():
+@app.route('/api/get_user_session', methods=['GET'])
+def get_user_session():
     try:
-        result = sql.execute("get_user.sql", (session.get('id'),), fetch=True)
-        name, surname, patronim, phone, tg_nick, email, _, group, year, role = result
+        user_id = session.get('id')
+        avatar_link = session.get('avatar_link')
+
+        user_data = {
+            'id': user_id,
+            'avatar_link': avatar_link
+        }
+
+        return jsonify({"status": "success", "data": user_data})
+    except Exception as e:
+        print(f"Ошибка при отправке информации о сессии! Описание: {e}")
+
+@app.route('/api/get_user_info', methods=['GET'])
+async def get_user_info():
+    try:
+        user_id = session.get('id')
+
+        try:
+            await sql.connect()
+        except:
+            print("Подключение уже произведено")
+        finally:
+            result = await sql.execute("get_user.sql", (user_id,), fetch=True)
+            name, surname, patronym, phone, tg_nick, email, _, group, year, role = result
+
+            departments = await sql.execute("get_departments.sql", (user_id,), fetch=True, one=False)
+            print(departments)
+            departments = [x[0] if x[0] is not None else "" for x in departments]
+            await sql.close()
 
         user_data = {
             'email': email,
-            'fullname': name + ' ' + surname + ' ' + patronim,
+            'fullname': surname + ' ' + name + ' ' + patronym,
             'group': group,
             'year': year,
             'phone': phone,
             'telegram': tg_nick,
             'role': role,
+            'departs': departments,
             'avatar_link': session.get('avatar_link'),
         }
 
@@ -119,20 +180,38 @@ def get_user_info():
         return jsonify({"status": "failure", "message": e})
 
 @app.route('/api/change_contacts', methods=['POST', 'GET'])
-def change_contacts():
+async def change_contacts():
     try:
         data = request.get_json()
 
         contact_type = data.get('type')
         value = data.get('value') if len(data.get('value'))>0 else None
 
-        sql.execute(f"change_contacts_{contact_type}.sql", (value, session.get('id')))
+        try:
+            await sql.connect()
+        except: pass
+        finally: await sql.execute(f"change_contacts_{contact_type}.sql", (value, session.get('id')))
 
         return jsonify({"status": "success", "message": f"{contact_type} изменен"})
     except Exception as e:
         print(f"Ошибка при обновлении контактной информации пользователя! Описание: {e}")
         return jsonify({"status": "failure", "message": e})
 
+@app.route('/api/get_funds', methods=['GET'])
+async def get_funds():
+    try:
+        try:
+            await sql.connect()
+        except: print("Подключение уже произведено")
+        finally:
+            role_info = await sql.execute("get_role.sql", (session.get('id'),), fetch=True)
+            role_info = (role_info[0], role_info[1], role_info[2] not in ["Студент"])
+            await sql.close()
+
+        return jsonify({"status": "success", "data" : role_info})
+    except Exception as e:
+        print(f"Ошибка при получении информации о сборах! Описание: {e}")
+        return jsonify({"status": "failure"})
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=5000)

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Главная страница {% endblock %}</title>
+
+    <link rel="stylesheet" href="../static/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/styles/account_menu.css">
+    <link rel="stylesheet" href="../static/styles/main_page.css">
+    {% block imports %}{% endblock %}
+</head>
+
+<body>
+    <header class="page-layout__header">
+        <nav class="navigation">
+            <div class="navigation__menu">
+                <div class="navigation__link" id="funds">
+                    Сборы
+                </div>
+                <div class="navigation__link" id="apps">
+                    Заявления
+                </div>
+                <div class="navigation__link" id="guide">
+                    Гайд
+                </div>
+                <div class="navigation__link" id="department">
+                    Департамент
+                </div>
+                <div class="navigation__link" id="settings">
+                    Настройки
+                </div>
+            </div>
+            <div class="navigation__user">
+                <img src="../static/alt_photo.png" alt="">
+<!--                <i class="fa fa-user-circle" aria-hidden="true"></i>-->
+            </div>
+        </nav>
+    </header>
+
+
+    <main>
+        <div class="navigation_back"></div>
+        <div class="space"></div>
+        {% block content %}{% endblock %}
+<!--    <div class="funding">-->
+<!--        <div class="funding__create">-->
+<!--            Создать сбор-->
+<!--        </div>-->
+<!--        <div class="funding__list">-->
+<!--            <div class="funding__element">-->
+<!--                <div class="funding__element_dates">01.09 - 07.09</div>-->
+<!--                <div class="funding__element_status">-->
+<!--                    <img src="../static/alt_photo.png" alt="">-->
+<!--                </div>-->
+<!--                <div class="funding__element_owner">Лев Мальцев | 5 курс</div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+        <div class="overlay" style="display: none">
+            <div class="account_menu">
+                <div class="account_card">
+                    <div class="user_avatar">
+                        <img src="../static/alt_photo.png" alt="">
+    <!--                    <img class="" src="https://avatars.yandex.net/get-yapic/47747/IfMIQf9CPADgNEAwt4asFHcLdk-1/islands-200" alt="">-->
+                    </div>
+                    <div class="user_fullname">
+                        - - -
+                    </div>
+                    <div class="user_email" onclick="copyFunc()">
+                        surname.np@phystech.edu
+                    </div>
+                    <div class="user_study">
+                        <div id="group">
+                            <span id="group-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+                            <span id="group-number">
+                                Б00-000
+                            </span>
+                        </div>
+                        <div id="course">
+                            <span id="course-icon"><i class="fa fa-graduation-cap" aria-hidden="true"></i></span>
+                            <span id="course-number">
+                                0 курс
+                            </span>
+                        </div>
+                    </div>
+                    <div class="user_contacts">
+                        <div id="phone">
+                            <span id="phone-icon"><i class="fa fa-phone-square" aria-hidden="true"></i></span>
+                            <input id="phone-number" type="tel" placeholder="+7 (___) ___-__-__" maxlength="18" minlength="18">
+                        </div>
+                        <div id="telegram">
+                            <span id="tg-icon"><i class="fa fa-telegram" aria-hidden="true"></i></span>
+                            <input id="tg-nickname" pattern="^(?:@.+)$" placeholder="@nickname" minlength="6" maxlength="33">
+                        </div>
+                    </div>
+                    <div class="user_departments">
+                        <div id="department-title">Департаменты</div>
+                        <div class="departments_grid">
+    <!--                        <span class="depart">Хоз</span>-->
+    <!--                        <span class="depart">ДКС</span>-->
+    <!--                        <span class="depart">PR</span>-->
+    <!--                        <span class="depart">Учебный</span>-->
+    <!--                        <span class="depart">Информационный</span>-->
+                        </div>
+                    </div>
+                    <div class="user_role">
+                        <span id="role">Студент</span>
+                    </div>
+                </div>
+                <button class="account_menu_close_btn"></button>
+                <button class="sign_out_btn">Выйти</button>
+            </div>
+        </div>
+    </main>
+
+    <script type="text/javascript" src="../static/scripts/main_script.js"></script>
+</body>
+
+</html>

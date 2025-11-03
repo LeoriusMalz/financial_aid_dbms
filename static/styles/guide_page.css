@@ -1,0 +1,31 @@
+a {
+    color: #e53935;
+}
+
+.guide {
+    display: block;
+    font-family: "VK Sans Display", serif;
+    color: #d1d1d1;
+    font-size: 1.3em;
+
+    width: 90%;
+    margin-top: 20px;
+    margin-left: 30px;
+
+    text-align: justify;
+}
+
+
+
+
+/*#guide_header {*/
+/*    display: flex;*/
+/*    height: 400px;*/
+/*    justify-content: center;*/
+/*}*/
+
+/*#guide_header img {*/
+/*    height: 400px;*/
+/*    scale: 200%;*/
+/*    box-sizing: content-box;*/
+/*}*/

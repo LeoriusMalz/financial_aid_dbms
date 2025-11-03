@@ -1,3 +1,4 @@
+aiosqlite
 Flask==3.1.2
 Authlib==1.6.5
 Pygments==2.19.2

@@ -1,0 +1,57 @@
+{% extends "index.html" %}
+{% block title %}Сборы{% endblock %}
+
+{% block imports %}
+<link rel="stylesheet" href="../static/styles/fund_page.css">
+{% endblock %}
+
+{% block content %}
+<div class="funding">
+    <div class="funding__create">
+        Создать сбор
+    </div>
+    <div class="funding__list">
+        <div class="funding__element false">
+            <div class="funding__element_dates">01.09 - 07.09</div>
+            <div class="funding__element_status">
+                <img src="../static/alt_photo.png" alt="">
+            </div>
+            <div class="funding__element_owner">Лев Мальцев | 5 курс</div>
+        </div>
+
+        <div class="funding__element true">
+            <div class="funding__element_dates">01.09 - 07.09</div>
+            <div class="funding__element_status">
+                <img src="../static/alt_photo.png" alt="">
+            </div>
+            <div class="funding__element_owner">Лев Мальцев | 5 курс</div>
+        </div>
+
+        <div class="funding__element true">
+            <div class="funding__element_dates">01.09 - 07.09</div>
+            <div class="funding__element_status">
+                <img src="../static/alt_photo.png" alt="">
+            </div>
+            <div class="funding__element_owner">Лев Мальцев | 5 курс</div>
+        </div>
+
+        <div class="funding__element true own">
+            <div class="funding__element_dates">01.09 - 07.09</div>
+            <div class="funding__element_status">
+                <img src="../static/alt_photo.png" alt="">
+            </div>
+            <div class="funding__element_owner">Лев Мальцев | 5 курс</div>
+        </div>
+
+        <div class="funding__element false">
+            <div class="funding__element_dates">01.09 - 07.09</div>
+            <div class="funding__element_status">
+                <img src="../static/alt_photo.png" alt="">
+            </div>
+            <div class="funding__element_owner">Лев Мальцев | 5 курс</div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="../static/scripts/funds.js"></script>
+{% endblock %}
