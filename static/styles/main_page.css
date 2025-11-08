@@ -21,7 +21,7 @@ header {
     /*border-radius: 100px;*/
     border-bottom-left-radius: 33px;
     border-bottom-right-radius: 33px;
-    z-index: 4;
+    z-index: 10;
 
     width: 100%;
     padding-top: 10px;

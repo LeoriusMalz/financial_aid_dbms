@@ -1,8 +1,21 @@
 import asyncio
+import json
+from datetime import datetime
+
 from flask import Flask, redirect, url_for, session, request, render_template_string, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
 from pygments.lexers import templates
 import database.db_manager as db_manager
+from openpyxl import Workbook
+from io import BytesIO
+
+def get_course(year, group):
+    course = datetime.now().year - year + 1
+    if datetime.now().month < 9: course -= 1
+    if group[0] == 'М': course += 4
+
+    return course
+
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "ajskdhA89sdjASD91823jsd0A8sdasdjA0s9d"
@@ -93,6 +106,15 @@ def funds():
         return redirect(url_for('homepage'))
 
     return render_template('funds_page.html')
+
+@app.route('/api/funds/<int:id>')
+def open_fund(id):
+    if not session.get('id'):
+        return redirect(url_for('homepage'))
+
+    print(id)
+    return jsonify({"id": id})
+
 
 @app.route('/guide')
 def guide():
@@ -197,20 +219,89 @@ async def change_contacts():
         print(f"Ошибка при обновлении контактной информации пользователя! Описание: {e}")
         return jsonify({"status": "failure", "message": e})
 
+# TODO: добавить в отдельный конфиг-файл
+roles = {
+    "Студент": 0,
+    "Начальник курса": 1,
+    "Староста курса": 1,
+    "Глава департамента": 2,
+}
+
 @app.route('/api/get_funds', methods=['GET'])
 async def get_funds():
-    try:
-        try:
-            await sql.connect()
-        except: print("Подключение уже произведено")
-        finally:
-            role_info = await sql.execute("get_role.sql", (session.get('id'),), fetch=True)
-            role_info = (role_info[0], role_info[1], role_info[2] not in ["Студент"])
-            await sql.close()
 
-        return jsonify({"status": "success", "data" : role_info})
+    await sql.connect()
+    # role_info = await sql.execute("get_role.sql", (session.get('id'),), fetch=True)
+    # role_info = (role_info[0], role_info[1], roles[role_info[2]])
+    # await sql.connect()
+
+    user_info = await sql.execute("get_user.sql", (session.get('id'),), fetch=True)
+    user_info = user_info[-3:]
+
+    course = min(get_course(user_info[1], user_info[0]), 5)
+
+    await sql.connect()
+    funds_list = await sql.execute("get_funds.sql", (course, session.get('id'), session.get('id'),), fetch=True, one=False)
+
+    data = {
+        'can_change': roles[user_info[-1]],
+        'funds_list': funds_list[:30]
+    }
+
+    return jsonify({"status": "success", "session_id": session.get('id'), "data" : data})
+    # except Exception as e:
+    #     print(f"Ошибка при получении информации о сборах! Описание: {e}")
+    #     return jsonify({"status": "failure"})
+
+@app.route('/api/get_own_to_funds', methods=['GET'])
+async def get_own_to_funds():
+    await sql.connect()
+    res = await sql.execute("get_role.sql", (session.get('id'),), fetch=True)
+    deps = await sql.execute("get_departments.sql", (session.get('id'),), fetch=True, one=False)
+    dep_ids = [el[1] for el in deps]
+    deps = [el[0] for el in deps]
+    res = {
+        "group": res[0],
+        "year": res[1],
+        "role": roles[res[2]],
+        "departments": deps,
+        "department_ids": dep_ids,
+    }
+
+
+    return jsonify({"status": "success", "data": res})
+
+@app.route('/api/put_fund', methods=['POST'])
+async def put_fund():
+    data = request.get_json()
+    user_data = json.loads((await get_own_to_funds()).data.decode('utf-8'))['data']
+
+    course = min(get_course(user_data['year'], user_data['group']), 5)
+
+    await sql.execute("put_fund.sql",
+                      (data['start_date'], data['end_date'],
+                       session.get('id'), user_data['role'],
+                       course, user_data['department_ids'][0],
+                       b"table",))
+
+    return jsonify({"status": "success"})
+    # await sql.connect()
+
+
+@app.route('/api/get_apps', methods=['GET'])
+async def get_apps():
+    try:
+        # try:
+        #     await sql.connect()
+        # except: print("Подключение уже произведено")
+        # finally:
+        #     role_info = await sql.execute("get_role.sql", (session.get('id'),), fetch=True)
+        #     role_info = (role_info[0], role_info[1], role_info[2] not in ["Студент"])
+        #     await sql.close()
+
+        return jsonify({"status": "success", "data" : ""})
     except Exception as e:
-        print(f"Ошибка при получении информации о сборах! Описание: {e}")
+        print(f"Ошибка при получении информации о заявлениях! Описание: {e}")
         return jsonify({"status": "failure"})
 
 if __name__ == "__main__":

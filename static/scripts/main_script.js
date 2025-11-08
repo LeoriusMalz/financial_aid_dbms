@@ -78,15 +78,13 @@ async function getCourse(year) {
 }
 
 async function getUserSession() {
-    const response = await fetch('/api/get_user_session');
-    const expand = await response.json();
+    const response = await (await fetch('/api/get_user_session')).json();
 
-    if (expand["status"] === "success") {
-        const data = expand.data;
+    if (response["status"] === "success") {
+        const data = response.data;
 
         user_icon.querySelector("img").src = data['avatar_link'];
-    } else {
-        console.log(expand["status"]);
+        return data;
     }
 }
 

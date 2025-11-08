@@ -13,6 +13,7 @@
     align-items: center;
 
     overflow-y: auto;
+    z-index: 5;
 }
 
 .account_menu {
@@ -21,8 +22,19 @@
 
 /* Карточка пользователя */
 .account_card {
+    /*background: rgba(245, 245, 245, 0.6);*/
+    background: rgba(0, 0, 0, 0.6);
+
+    box-shadow: 0 0 2px rgba(255, 255, 255),
+                 0 0 4px rgba(255, 255, 255),
+                 -2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),
+                 inset -2px 0 6px rgba(179, 179, 179, 0.44);
+
+    backdrop-filter: blur(15px);
+
     display: block;
-    background: whitesmoke;
+    /*background: whitesmoke;*/
     flex-wrap: wrap;
     /*position: relative;*/
     /*left: calc(50vw - min(650px, 60vw)/2);*/
@@ -35,7 +47,7 @@
     max-height: 90vh;
     overflow-y: auto;
     flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    /*box-shadow: 0 4px 20px rgba(0,0,0,0.35);*/
 
     /*margin: 40px auto auto;*/
     margin-top: 35px;
@@ -126,7 +138,11 @@
 .user_fullname {
     font-size: 37px;
     font-weight: bolder;
-    color: #3c0000;
+    /*color: #3c0000;*/
+    color: rgba(255, 255, 255, 0.54);
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.75),
+                 0 0 2px rgba(255, 255, 255, 0.75),
+                 -2px 0 4px rgba(255, 255, 255, 0.5);
     text-align: center;
 
     word-wrap: break-word;
@@ -139,21 +155,25 @@
 .user_email {
     font-size: 20px;
     font-weight: lighter;
-    color: dimgray;
+    color: rgba(255, 255, 255, 0.9);
     text-align: center;
 
     margin-top: 0;
 
+    transition: 0.2s;
     cursor: copy;
 }
 
 .user_email:hover {
-    color: #5e5a5a;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.9),
+                 0 0 4px rgba(255, 255, 255, 0.8);
 }
 
 /* Цвета иконок */
 [id$="icon"] {
-    color: #450000;
+    /*color: #450000;*/
+    color: rgba(255, 255, 255, 1);
 }
 
 /* Учебная информация */
@@ -165,6 +185,8 @@
 
     margin-left: 3%;
     margin-top: 35px;
+
+    color: white;
 }
 
 #course-icon {
@@ -222,6 +244,8 @@
     height: 32px;
     width: 275px;
 
+    color: white;
+
     transition: background 0.3s;
     cursor: pointer;
 }
@@ -260,6 +284,8 @@
 
     font-weight: bold;
     font-size: 22px;
+
+    color: white;
 }
 
 .departments_grid {
@@ -274,20 +300,28 @@
     font-optical-sizing: auto;
     font-weight: bold;
     font-size: 18px;
-    color: #300000;
+    color: #ffffff;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.7),
+                 0 0 2px rgba(255, 255, 255, 0.7),
+                 0 0 4px rgba(255, 255, 255, 0.45);
 
     margin-top: 10px;
 }
 
 .depart {
     display: inline;
-    background-color: rgba(152, 0, 0, 0.1);
+    background-color: rgba(142, 142, 142, 0.1);
+
+    box-shadow: 0 0 1px rgba(255, 255, 255),
+                 0 0 2px rgba(255, 255, 255),
+                 -2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset 3px 1px 2px rgba(255, 255, 255, 0.91),
+                 inset -2px 0 3px rgba(179, 179, 179, 0.44);
+
+    backdrop-filter: blur(1);
 
     text-align: center;
 
-    border-width: 3px;
-    border-color: black;
-    border-style: hidden;
     border-radius: 6px;
 
     padding: 5px;
@@ -299,7 +333,7 @@
     font-weight: bold;
     font-size: 40px;
     text-align: center;
-    color: #000000;
+    color: white;
 
     margin-top: 20px;
     margin-bottom: 15px;

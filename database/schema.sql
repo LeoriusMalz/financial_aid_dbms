@@ -44,6 +44,19 @@ CREATE TABLE IF NOT EXISTS departments (
     depart      VARCHAR(20)     NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS fundings (
+    fund_id     INTEGER         PRIMARY KEY AUTOINCREMENT,
+    start_date  DATE            NOT NULL DEFAULT CURRENT_DATE,
+    end_date    DATE            NOT NULL CHECK(end_date > start_date),
+    creator_id  BIGINT          NOT NULL,
+    type        INTEGER         NOT NULL DEFAULT 1,
+    course      INTEGER,
+    depart_id   INTEGER,
+    table_file  BLOB,
+    FOREIGN KEY (depart_id) REFERENCES  departments(depart_id)  ON DELETE SET NULL
+                                                                ON UPDATE CASCADE
+);
+
 -- 0 - бак, 1 - мага, 2 - спец
 -- 01-19 - фш
 -- 00-99 - год
