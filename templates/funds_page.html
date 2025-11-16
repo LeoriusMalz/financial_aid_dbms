@@ -1,11 +1,21 @@
 {% extends "index.html" %}
-{% block title %}Сборы{% endblock %}
+{% block title %}{{ TITLE }}{% endblock %}
 
 {% block imports %}
 <link rel="stylesheet" href="../static/styles/fund_page.css">
 {% endblock %}
 
 {% block content %}
+<div class="message-win">
+    <div class="mw-content">
+        <div class="message">
+            <span class="text text-1">Успех!</span>
+            <span class="text text-2">Заявление подано!</span>
+        </div>
+    </div>
+    <div class="progress"></div>
+</div>
+
 <div class="funding">
     <div class="funding__create">
         Создать сбор
@@ -76,7 +86,7 @@
 <!--        </div>-->
     </div>
 
-    <div class="funding-overlay" style="display: none">
+    <div class="funding-overlay" id="create" style="display: none" aria-modal="true">
         <div class="funding-creating-win">
             <div class="fcw__own"></div>
             <div class="fcw__dates">
@@ -87,7 +97,54 @@
             <button class="fcw__create">Создать</button>
         </div>
     </div>
+
+    <div class="funding-overlay" id="edit" style="display: none" aria-hidden="false">
+        <div class="fund-win" aria-modal="true">
+            <div class="fw__own"></div>
+            <div class="fw__total">0₽</div>
+
+            <div class="fw__cat-list">
+                <div class="fw__cat" id="none">
+                    <select class="cat-select">
+                        <option disabled selected style="display:none;" value="none">Выбери категорию</option>
+<!--                        <option>Потеря кормильца</option>-->
+<!--                        <option>Соц помощь</option>-->
+<!--                        <option>Малообеспеченность</option>-->
+                    </select>
+                    <input class="cat-amount" type="number" alt="0₽" placeholder="0₽" value="0" min="0" step="any">
+                    <button class="cat-remove" disabled>X</button>
+                </div>
+            </div>
+
+            <div class="fw__cat-add">
+                <button>Добавить</button>
+            </div>
+
+            <div class="fw__comment">
+                <label for="user">Комментарий</label>
+                <textarea id="user" rows="3" placeholder="Введите комментарий (необязательно)"></textarea>
+            </div>
+
+            <div class="fw__send">
+                <button disabled>Отправить</button>
+            </div>
+
+            <div class="fw__files">
+                <div id="download">
+                    <button id="word" title="Скачать заявление в формате Word"><i class='fa fa-file-word-o'></i></button>
+                    <button id="pdf" title="Скачать заявление в формате PDF"><i class='fa fa-file-pdf-o'></i></button>
+                </div>
+                <label for="upload" class="drop-container" id="dropcontainer">
+                    <span class="drop-title">Прикрепи заявление</span>
+                    <input type="file" id="upload" accept=".pdf" required>
+                </label>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+    const fund_id = {{ FUND_ID }};
+</script>
 <script type="text/javascript" src="../static/scripts/funds.js"></script>
 {% endblock %}

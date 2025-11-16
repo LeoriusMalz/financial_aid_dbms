@@ -37,7 +37,7 @@
 // Подгрузка инфы о пользователе при загрузке страницы
 document.addEventListener('DOMContentLoaded', async function () {
     console.log("Loaded!");
-    document.querySelector(`.navigation__link#${window.location.pathname.substring(1)}`).classList.add("active");
+    document.querySelector(`.navigation__link#${window.location.pathname.substring(1).split('/')[0]}`).classList.add("active");
 
     await getUserSession();
 });

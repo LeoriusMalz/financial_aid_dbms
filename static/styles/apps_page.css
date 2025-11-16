@@ -16,12 +16,14 @@
     justify-content: start;
     align-items: start;
 
+    width: 100%;
+
     flex-wrap: wrap;
     white-space: nowrap;
     gap: 30px;
 
     top: 30px;
-    left: 80px;
+    left: 50px;
     padding: 5px;
 }
 
@@ -93,8 +95,17 @@
 }
 
 .apps__element_type {
+    /*outline-style: solid;*/
+    /*outline-color: #e53935;*/
     position: relative;
-    bottom: -180px;
+    width: 100%;
+    height: auto;
+    --h: 0;
+    bottom: -170px;
+    /*bottom: calc(-170px - var(--h));*/
+    font-size: 30px;
+    word-wrap: break-word;
+    text-wrap: wrap;
 }
 
 

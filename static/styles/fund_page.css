@@ -2,6 +2,10 @@
 /*    outline: 1px solid red;*/
 /*}*/
 
+body {
+    overflow-x: hidden;
+}
+
 .funding {
     display: none;
     font-family: "VK Sans Display", serif;
@@ -153,7 +157,7 @@
     font-family: "VK Sans Display", serif;
 }
 
-.funding-creating-win {
+.funding-creating-win, .fund-win {
     background: rgba(245, 245, 245, 0.3);
     box-shadow: 0 0 2px rgba(255, 255, 255),
                  0 0 4px rgba(255, 255, 255),
@@ -184,7 +188,6 @@
     overflow-y: auto;
 }
 
-
 .fcw__dates {
     display: flex;
     flex-wrap: wrap;
@@ -203,6 +206,33 @@
     text-shadow: 0 0 1px rgba(255, 255, 255),
                  0 0 2px rgba(255, 255, 255),
                  0 0 4px rgba(255, 255, 255, 0.75);
+}
+
+input, select, .drop-container {
+    --color: 230, 230, 230;
+
+    border-radius: 10px;
+    border-width: 0;
+    background: rgba(var(--color), 0.23);
+    box-shadow: 0 0 2px rgba(255, 255, 255),
+                 0 0 4px rgba(255, 255, 255),
+                 -2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),
+                 inset -2px 0 6px rgba(179, 179, 179, 0.44);
+
+    font-family: "VK Sans Display", serif;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    backdrop-filter: blur(10px);
+
+    color: rgba(255, 255, 255, 1);
+
+    text-align: center;
+    vertical-align: center;
+
+    transition: 0.2s;
+    cursor: pointer;
 }
 
 .fcw__dates input {
@@ -244,7 +274,7 @@
     --color: 230, 0, 0;
 }
 
-.fcw__dates input:hover:focus {
+input:hover, select:hover {
     outline-color: white;
     outline-style: dashed;
 
@@ -260,7 +290,7 @@
                  inset 2px 0 12px rgba(179, 179, 179, 0.44);
 }
 
-.fcw__dates input:focus {
+input:focus, select:focus {
     outline-color: white;
     outline-style: dashed;
 
@@ -276,18 +306,31 @@
                  inset 2px 0 12px rgba(179, 179, 179, 0.44);
 }
 
-.fcw__dates input:hover {
-    background: rgba(var(--color), 0.03);
+/*.fcw__dates input:hover {*/
+/*    background: rgba(var(--color), 0.03);*/
 
-    box-shadow: 0 0 2px rgba(255, 255, 255),
-                 0 0 4px rgba(255, 255, 255),
-                 -2px 0 8px rgba(255, 255, 255, 0.75),
-                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),
-                 inset -2px 0 6px rgba(179, 179, 179, 0.44),
-                 2px 0 8px rgba(255, 255, 255, 0.75),
-                 inset -5px -1px 5px rgba(255, 255, 255, 0.91),
-                 inset 2px 0 6px rgba(179, 179, 179, 0.44);
-}
+/*    box-shadow: 0 0 2px rgba(255, 255, 255),*/
+/*                 0 0 4px rgba(255, 255, 255),*/
+/*                 -2px 0 8px rgba(255, 255, 255, 0.75),*/
+/*                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),*/
+/*                 inset -2px 0 6px rgba(179, 179, 179, 0.44),*/
+/*                 2px 0 8px rgba(255, 255, 255, 0.75),*/
+/*                 inset -5px -1px 5px rgba(255, 255, 255, 0.91),*/
+/*                 inset 2px 0 6px rgba(179, 179, 179, 0.44);*/
+/*}*/
+
+/*.fcw__dates input:hover {*/
+/*    background: rgba(var(--color), 0.03);*/
+
+/*    box-shadow: 0 0 2px rgba(255, 255, 255),*/
+/*                 0 0 4px rgba(255, 255, 255),*/
+/*                 -2px 0 8px rgba(255, 255, 255, 0.75),*/
+/*                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),*/
+/*                 inset -2px 0 6px rgba(179, 179, 179, 0.44),*/
+/*                 2px 0 8px rgba(255, 255, 255, 0.75),*/
+/*                 inset -5px -1px 5px rgba(255, 255, 255, 0.91),*/
+/*                 inset 2px 0 6px rgba(179, 179, 179, 0.44);*/
+/*}*/
 
 .fcw__create {
     background: rgba(230, 230, 230, 0.23);
@@ -333,6 +376,362 @@
                  inset 2px 0 6px rgba(179, 179, 179, 0.44);
 }
 
+.fund-win {
+    max-height: 600px;
+    max-width: 460px;
+    min-width: 460px;
+    font-family: "VK Sans Display", serif;
+}
+
+.fw__own {
+    font-size: 2em;
+    color: white;
+
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.6),
+                0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+.fw__total {
+    font-size: 1.5em;
+    margin-top: 0px;
+    color: gold;
+
+    text-shadow: 0 0 2px rgba(255, 215, 0, 0.8),
+                0 0 4px rgba(255, 215, 0, 0.6);
+}
+
+.fw__total.over {
+    color: rgb(228, 53, 87);
+
+    text-shadow: 0 0 2px rgba(228, 53, 87, 0.8),
+                0 0 4px rgba(228, 53, 87, 0.6);
+}
+
+.cat-select {
+    border-radius: 10px;
+    height: 38px;
+    width: 52%;
+    font-size: 15px;
+    text-align: start;
+    font-weight: bolder;
+
+    margin: 1px;
+}
+
+.cat-amount {
+    height: 37px;
+    width: 130px;
+    font-size: 20px;
+
+    margin: 3px;
+}
+
+.cat-remove {
+    border-radius: 20px;
+    border-style: hidden;
+    font-family: "VK Sans Display", serif;
+    font-weight: bolder;
+    color: #6e0000;
+
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(5px);
+
+    box-shadow: 0 0 1px white,
+                 0 0 2px white,
+                 -2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset 2px 0 1px rgba(255, 255, 255, 0.61),
+                 inset -2px 0 1px rgba(179, 179, 179, 0.44);
+
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.cat-remove:disabled {
+    color: grey;
+
+    box-shadow: 0 0 1px white,
+                 0 0 2px white,
+                 0 0 4px rgba(255, 255, 255, 0.75);
+}
+
+.cat-remove:enabled:hover {
+    background: rgba(255, 255, 255, 0.32);
+
+    box-shadow: 0 0 1px white,
+                 0 0 2px white,
+                 -2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset -2px 0 2px rgba(255, 255, 255, 0.61),
+                 inset 2px 0 2px rgba(179, 179, 179, 0.44);
+
+    color: #e53935;
+    text-shadow: 0 0 1px rgba(229, 57, 53, 0.8),
+                0 0 2px rgba(229, 57, 53, 0.6);
+}
+
+.fw__cat-list {
+    width: 90%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.fw__cat {
+    padding: 2px;
+}
+
+.fw__cat-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    margin-bottom: 10px;
+}
+
+button {
+    border-radius: 10px;
+    border-style: hidden;
+
+    font-family: "VK Sans Display", serif;
+    font-weight: bolder;
+
+    background: rgba(230, 230, 230, 0.23);
+
+    backdrop-filter: blur(10px);
+
+    color: rgba(255, 255, 255, 1);
+
+    box-shadow: 0 0 2px rgba(255, 255, 255),
+                 0 0 4px rgba(255, 255, 255),
+                 -2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),
+                 inset -2px 0 6px rgba(179, 179, 179, 0.44);
+
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+button:disabled {
+    color: #d1d1d1;
+    box-shadow: 0 0 2px rgba(209, 209, 209),
+                 0 0 4px rgba(209, 209, 209),
+                 -2px 0 8px rgba(209, 209, 209, 0.75);
+}
+
+button:hover:enabled {
+    background: rgba(230, 230, 230, 0.03);
+
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.61),
+                0 0 4px rgba(255, 255, 255, 0.71);
+
+    box-shadow: 0 0 2px rgba(255, 255, 255),
+                 0 0 4px rgba(255, 255, 255),
+                 -2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),
+                 inset -2px 0 6px rgba(179, 179, 179, 0.44),
+                 2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset -5px -1px 5px rgba(255, 255, 255, 0.91),
+                 inset 2px 0 6px rgba(179, 179, 179, 0.44);
+}
+
+.fw__cat-add button {
+    width: 80%;
+    height: 37px;
+    font-size: 23px;
+}
+
+.fw__comment {
+    display: flex;
+    width: 80%;
+    height: auto;
+
+    margin-top: 10px;
+    margin-bottom: 14px;
+
+    flex-direction: column;
+    align-items: center;
+}
+
+.fw__comment label {
+    font-family: "VK Sans Display", serif;
+}
+
+.fw__comment #user {
+    margin-top: 5px;
+    width: 100%;
+    min-width: 70%;
+    max-width: 100%;
+    height: auto;
+    min-height: 60px;
+    max-height: 200px;
+    font-size: 15px;
+    font-family: "VK Sans Display", serif;
+    color: #000000;
+
+    border-radius: 10px;
+    border-style: hidden;
+    padding: 10px;
+
+    background: rgba(255, 255, 255, 0.34);
+    backdrop-filter: blur(10px);
+
+    box-shadow: 0 0 1px rgba(255, 255, 255),
+                 0 0 2px rgba(255, 255, 255),
+                 -2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset 2px 1px 2px rgba(255, 255, 255, 0.91),
+                 inset -1px 0 3px rgba(179, 179, 179, 0.44),
+                 2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset -2px -1px 2px rgba(255, 255, 255, 0.91),
+                 inset 1px 0 3px rgba(179, 179, 179, 0.44);
+
+}
+
+.fw__comment #user:focus {
+    outline-style: dashed;
+    outline-color: white;
+
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: 0 0 2px rgba(255, 255, 255),
+                 0 0 4px rgba(255, 255, 255),
+                 -2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 2px 1px 4px rgba(255, 255, 255, 0.91),
+                 inset -1px 0 6px rgba(179, 179, 179, 0.44),
+                 2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset -2px -1px 4px rgba(255, 255, 255, 0.91),
+                 inset 1px 0 6px rgba(179, 179, 179, 0.44);
+}
+
+.fw__send {
+    display: flex;
+    width: 50%;
+
+    justify-content: center;
+}
+
+.fw__send button{
+    width: 100%;
+    height: 30px;
+    font-size: 18px;
+}
+
+.fw__files {
+    display: inline-flex;
+    margin-top: 14px;
+    width: 80%;
+    height: 80px;
+    gap: 10px;
+
+    justify-content: center;
+}
+
+#download {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: auto;
+    gap: 10px;
+}
+
+#download button {
+    height: 50%;
+    font-size: 20px;
+    width: 60px;
+
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 2px white,
+                 0 0 4px white,
+                 -4px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 4px 0 2px rgba(255, 255, 255, 0.61),
+                 inset -4px 0 2px rgba(179, 179, 179, 0.44);
+}
+
+#word {
+    --color: 21, 79, 205;
+}
+
+#pdf {
+    --color: 184, 71, 71;
+}
+
+
+#download button:hover {
+    /*color: rgba(var(--color), 1);*/
+
+    /*text-shadow: 0 0 2px rgba(var(--color), 0.81),*/
+    /*            0 0 4px rgba(var(--color), 0.91);*/
+
+    box-shadow: 0 0 2px rgba(var(--color), 1),
+                 0 0 4px rgba(var(--color), 1),
+                 4px 0 8px rgba(var(--color), 0.75),
+                 inset -4px 0 2px rgba(var(--color), 0.61),
+                 inset 4px 0 2px rgba(179, 179, 179, 0.44);
+}
+
+.drop-container {
+    box-shadow: 0 0 2px rgba(255, 255, 255, 1),
+                 0 0 4px rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.11);
+    backdrop-filter: blur(10px);
+
+    padding-top: 6px;
+    padding-bottom: 20px;
+
+    width: 30%;
+    border-style: dashed;
+    border-width: 2px;
+
+    text-wrap: wrap;
+    line-height: 12px;
+}
+
+.drop-container input, .drop-container input:hover {
+    box-shadow: 0 0 2px rgba(255, 255, 255, 1),
+                 0 0 4px rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.11);
+    backdrop-filter: blur(10px);
+    font-size: 4px;
+
+    margin-top: 8px;
+
+    height: 50%;
+    width: 50%;
+    border-style: dashed;
+    border-width: 0;
+
+    outline-width: 0;
+    outline-style: solid;
+
+    text-wrap: wrap;
+}
+
+input::file-selector-button {
+    border-radius: 20px;
+    border-width: 0;
+    margin-top: 6px;
+    margin-left: -8px;
+
+    font-size: 8px;
+    background: rgba(255, 255, 255, 0.25);
+    color: #595959;
+}
+
+.drop-title {
+    font-size: 13px;
+}
+
+.drop-container:hover {
+    outline-width: 0;
+    background: rgba(255, 255, 255, 0);
+    border-style: solid;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 1),
+                0 0 8px rgba(255, 255, 255, 1),
+                inset 2px 0 2px rgba(255, 255, 255, 1),
+                inset -2px 0 2px rgba(255, 255, 255, 1),
+                inset 4px 0 4px rgba(255, 255, 255, 0.7),
+                inset -4px 0 4px rgba(255, 255, 255, 0.7),
+                inset 8px 0 8px rgba(255, 255, 255, 0.4),
+                inset -8px 0 8px rgba(255, 255, 255, 0.4);
+}
+
 #alert {
     word-wrap: break-word;
     overflow-wrap: anywhere;
@@ -348,6 +747,111 @@
     color: rgba(229, 57, 53, 0.8);
     text-shadow: 0 0 1px rgba(229, 57, 53, 0.31),
                 0 0 2px rgba(229, 57, 53, 0.41);
+}
+
+
+.message-win {
+    position: fixed;
+    top: 0;
+    right: calc(50vw - 100px);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.44);
+    backdrop-filter: blur(5px);
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1),
+                0 0 2px rgba(255, 255, 255, 0.84),
+                0 0 4px rgba(255, 255, 255, 0.7),
+                0 0 8px rgba(255, 255, 255, 0.5),
+                inset -2px 0 2px rgba(255, 255, 255, 0.5);
+
+    overflow: hidden;
+    transform: translateY(calc(130% - 190px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+    z-index: 5;
+    font-family: "VK Sans Display", serif;
+}
+
+.message-win.active {
+    transform: translateY(130%);
+}
+
+.message-win .mw-content {
+    display: flex;
+    align-items: center;
+}
+
+.mw-content .check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 35px;
+    min-width: 35px;
+    background-color: #4070f4;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+}
+
+.mw-content .message {
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+}
+
+.message .text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #ffffff;
+}
+
+.message .text.text-1 {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.message-win .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.message-win .close:hover {
+    opacity: 1;
+}
+
+.message-win .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 5px;
+    width: 100%;
+
+}
+
+.message-win .progress:before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 2px rgba(255, 255, 255, 0.95),
+                0 0 4px rgba(255, 255, 255, 0.7);
+}
+
+.progress.active:before {
+    animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+    100% {
+        right: 100%;
+    }
 }
 
 /*.fcw__create:focus {*/

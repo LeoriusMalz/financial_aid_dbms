@@ -87,24 +87,53 @@ class DatabaseManager:
     async def execute(
         self,
         query_file: str,
-        params: tuple = (),
+        params: tuple | list[tuple] = None,
         fetch: bool = False,
         one: bool = True,
+        many: bool = False,
+        close: bool = True,
     ) -> list[Any] | None | Any:
         """Выполняет SQL-запрос (из файла)."""
-        if self.conn is None:
-            raise ConnectionError("Database is not connected. Call connect() first.")
+        try:
+            # if self.conn is None:
+            #     self.conn = await aiosqlite.connect(self.db_path)
+            #     # raise ConnectionError("Database is not connected. Call connect() first.")
+            # await self.conn.close()
+            # self.conn = await aiosqlite.connect(self.db_path)
+            await self.close()
+            await self.connect()
+            query = self._load_query(query_file)
 
-        await self.connect()
-        query = self._load_query(query_file)
-        async with self.conn.execute(query, params) as cursor:
-            if fetch:
-                if one:
-                    result = await cursor.fetchone()
-                else:
+            if many:
+                cursor = await self.conn.executemany(query, params)
+                if fetch:
                     result = await cursor.fetchall()
-                return result
+                    if close:
+                        await self.conn.close()
+                    return result
+                await self.conn.commit()
+                if close:
+                    await self.conn.close()
+                return None
 
-        await self.conn.commit()
-        await self.close()
-        return None
+            else:
+                cursor = await self.conn.execute(query, params)
+                if fetch:
+                    if one:
+                        result = await cursor.fetchone()
+                    else:
+                        result = await cursor.fetchall()
+
+                    await self.conn.commit()
+                    if close:
+                        await self.conn.close()
+                    return result
+
+            await self.conn.commit()
+            if close:
+                await self.conn.close()
+            return None
+        except Exception as e:
+            await self.conn.close()
+            print(f"Ошибка с базой данных! Описание: {e}")
+            return -1

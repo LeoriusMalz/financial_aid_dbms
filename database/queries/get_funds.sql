@@ -24,6 +24,10 @@
 --       )
 -- GROUP BY f.fund_id;
 
+WITH vars(stream, course, user_id) AS (
+    SELECT ?, ?, ?
+)
+
 SELECT
     f.fund_id,
     f.start_date,
@@ -38,12 +42,23 @@ FROM fundings AS f
     LEFT JOIN users AS u ON f.creator_id = u.user_id
     LEFT JOIN departments AS d ON f.depart_id = d.depart_id
 WHERE
-    f.type = 1 AND f.course = ? OR
+    f.type = 1 AND (
+        f.stream = (SELECT stream FROM vars) OR f.stream != (SELECT stream FROM vars) AND
+        date(f.start_date, 'unixepoch', 'localtime') > date(format('%s-08-31', IF(strftime('%m', 'now') > 8, strftime('%Y', 'now'), strftime('%Y', 'now')-1)))
+        AND (
+            (SELECT course FROM vars) = 5 AND
+            f.stream = (SELECT stream FROM vars)-1 OR
+            (SELECT course FROM vars) = 6 AND
+            f.stream = (SELECT stream FROM vars)+1)
+    ) OR
     f.type = 2 AND f.depart_id IN (
         SELECT u2d.depart_id FROM
-                               users AS u
-                           LEFT JOIN users_departments AS u2d ON u.user_id = u2d.user_id
-        WHERE u.user_id = ?
-        ) OR
-    f.creator_id = ?
-ORDER BY f.end_date DESC, f.start_date DESC;
+            users AS u
+            LEFT JOIN users_departments AS u2d ON u.user_id = u2d.user_id
+        WHERE u.user_id = (SELECT user_id FROM vars)
+    ) OR
+    f.creator_id = (SELECT user_id FROM vars)
+ORDER BY f.end_date DESC, f.start_date DESC
+
+-- SELECT date(1762981200, 'unixepoch', 'localtime') > date(format('%s-08-31', IF(strftime('%m', 'now') > 8, strftime('%Y', 'now'), strftime('%Y', 'now')-1)));
+

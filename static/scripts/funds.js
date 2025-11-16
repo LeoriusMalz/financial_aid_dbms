@@ -37,6 +37,11 @@
 // Подгрузка инфы о пользователе при загрузке страницы
 document.addEventListener('DOMContentLoaded', async function () {
     await getFunds();
+    await getCategories();
+    if (JSON.parse(sessionStorage.getItem("uploadStatus"))) {
+        showMessage("Успех!", "Заявление подано!");
+        sessionStorage.removeItem("uploadStatus");
+    }
 });
 //
 // const nav_link_funds = document.querySelector(".navigation__link#funds");
@@ -46,7 +51,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 const fundings_create_btn = document.querySelector(".funding__create");
 const fundings_page = document.querySelector(".funding");
-const funding_menu_overlay = document.querySelector(".funding-overlay");
+
+const funding_menu_overlay = document.querySelector(".funding-overlay#create");
+const funding_edit_overlay = document.querySelector(".funding-overlay#edit");
 
 const funding_list = document.querySelector(".funding__list");
 
@@ -54,6 +61,27 @@ const funding_creating_window = document.querySelector(".funding-creating-win");
 const fcw_own = funding_creating_window.querySelector(".fcw__own");
 const fcw_dates = funding_creating_window.querySelector(".fcw__dates");
 const fcw_create_btn = funding_creating_window.querySelector(".fcw__create");
+
+const funding_window = document.querySelector(".fund-win");
+const fw_cat_add_btn = funding_window.querySelector(".fw__cat-add button");
+const fw_cat_list = funding_window.querySelector(".fw__cat-list");
+const fw_cat = funding_window.querySelector(".fw__cat");
+const fw_cat_select = funding_window.querySelector(".cat-select");
+const fw_total_amount = funding_window.querySelector(".fw__total");
+const fw_own = funding_window.querySelector(".fw__own");
+const fw_send = funding_window.querySelector(".fw__send");
+const fw_comment = funding_window.querySelector(".fw__comment");
+
+const download_word = funding_window.querySelector("#download #word");
+const download_pdf = funding_window.querySelector("#download #pdf");
+const upload_app = funding_window.querySelector("#upload");
+
+// const categories = getCategories();
+
+const amount_inputs = fw_cat_list.querySelectorAll(".cat-amount");
+
+amount_inputs[0].addEventListener("focusout", updateTotalAmount);
+
 
 async function getFunds() {
     const response = await (await fetch('/api/get_funds')).json();
@@ -73,6 +101,7 @@ async function getFunds() {
         for (const fund of data['funds_list']) {
             showFunds(fund, session_id);
         }
+
         animatePanel();
         clickEvent();
     }
@@ -105,6 +134,46 @@ async function getOwn2Funds() {
     }
 }
 
+async function getCategories() {
+    const response = await (await fetch('/api/get_cats')).json();
+    if (response["status"] === "success") {
+        const data = response.data;
+
+        Object.entries(data).forEach(key => {
+            const option = document.createElement('option');
+            option.textContent = key[0];
+            option.value = key[1].toString();
+            fw_cat_select.appendChild(option);
+        });
+    }
+}
+
+function showMessage(label, text) {
+    const message = document.querySelector(".message-win");
+    const progress = document.querySelector(".progress");
+
+    const main_label = message.querySelector(".text-1");
+    const aux_label = message.querySelector(".text-2");
+
+    let timer1, timer2;
+
+    main_label.textContent = label;
+    aux_label.textContent = text;
+
+    message.classList.add("active");
+    progress.classList.add("active");
+
+    timer1 = setTimeout(() => {
+        message.classList.remove("active");
+    }, 5000); //1s = 1000 milliseconds
+
+    timer2 = setTimeout(() => {
+        progress.classList.remove("active");
+    }, 5300);
+
+    message.classList.remove("show");
+}
+
 function showFunds(fund, session_id) {
     let dest = fund[6];
 
@@ -129,7 +198,7 @@ function showFunds(fund, session_id) {
 
     let start_date = new Date(fund[1] * 1000);
     let end_date = new Date(fund[2] * 1000 - 1000);
-    newFund_dates.textContent = `${start_date.getDate()}.${start_date.getMonth()} - ${end_date.getDate()}.${end_date.getMonth()}`
+    newFund_dates.textContent = `${start_date.getDate()}.${start_date.getMonth()+1} - ${end_date.getDate()}.${end_date.getMonth()+1}`
 
     const newFund_status = document.createElement('div');
     newFund_status.classList.add("funding__element_status");
@@ -187,17 +256,117 @@ function animatePanel() {
 }
 
 function clickEvent() {
-    const fund_element = document.querySelectorAll(".funding__element");
+    const fund_element = document.querySelectorAll(".funding__element.true");
 
     fund_element.forEach(element =>
         element.addEventListener('click', async () => {
             let id = element.id;
-            history.pushState({ fundId: id }, "", `/funds/${id}`);
-            const response = await (await fetch(`/api/funds/${id}`)).json();
-            console.log(response);
+            let check = await checkFund4App(id);
+
+            if (check) {
+                history.pushState({fundId: id}, "", `/funds/${id}`);
+                document.title = `Сбор №${id}`
+
+                showModal(element, id);
+            }
         })
     );
 }
+
+function showModal(element, id) {
+    funding_edit_overlay.style.display = "flex";
+    funding_window.id = id;
+    fw_own.textContent = element.querySelector(".funding__element_owner").textContent.split("| ")[1];
+}
+
+async function checkFund4App(fund_id) {
+    const request = await fetch('/api/check_fund', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: fund_id})
+    });
+
+    if (request.ok) {
+        const response = await request.json()
+        const data = response.data;
+
+        if (data['apps_num'] > 0) {
+            showMessage("Извините!", "Заявление уже подано!")
+            return false;
+        }
+        return true;
+    } else {return false;}
+}
+
+async function uploadFile(cats, comment, file, fund) {
+    const form = new FormData();
+    form.append('categories', cats);
+    form.append('file', file);
+    form.append('comment', comment);
+    form.append('fund_id', fund);
+
+    const response = await fetch('/api/put_application', {
+        method: 'POST',
+        body: form
+    });
+
+    if (!response.ok) {
+        alert("Такой сбор недоступен!");
+    } else {
+        // message.classList.add("show");
+        sessionStorage.setItem('uploadStatus', JSON.stringify(true));
+    }
+
+    location.reload();
+}
+
+upload_app.addEventListener('change', (e) => {
+    fw_send.querySelector("button").disabled = !(e.target.files && e.target.files.length > 0);
+});
+
+fw_send.addEventListener('click', async () => {
+    const fund_id = funding_window.id;
+    let check = await checkFund4App(fund_id);
+
+    if (check) {
+        let cat_ids = {};
+        let comment = "";
+        let cats = funding_window.querySelectorAll(".fw__cat");
+
+        if (upload_app.files.length === 0) {
+            alert('Пожалуйста, выберите файл');
+            return;
+        }
+
+        for (let i = 0; i < cats.length; i++) {
+            let cat = cats[i];
+            let category = cat.querySelector(".cat-select").value;
+            let amount = cat.querySelector(".cat-amount").value;
+
+            if (category === "none") {
+                alert("Категория не может быть пустой!");
+                return;
+            }
+            category = parseInt(category);
+            if (cat_ids[category] || cat_ids[category] === 0) {
+                alert("Категория не может повторяться!");
+                return;
+            }
+
+            cat_ids[category] = parseInt(amount);
+        }
+
+        cat_ids = JSON.stringify(cat_ids);
+        console.log(cat_ids);
+        comment = fw_comment.querySelector("textarea").value;
+
+        await uploadFile(cat_ids, comment, upload_app.files[0], fund_id);
+    }
+
+    history.pushState({}, "", `/funds`);
+    document.title = `Сборы`
+    location.reload();
+});
 
 fundings_create_btn.addEventListener('click', async (e) => {
     funding_menu_overlay.style.display = "flex";
@@ -208,17 +377,29 @@ fundings_create_btn.addEventListener('click', async (e) => {
 
     let now = new Date();
     now = `${now.getFullYear()}-${("0" + (now.getMonth()+1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}`;
-    console.log(now);
     // const start_date = (start.valueAsDate.getTime()/1000).toFixed();
 
     start.value = now;
 });
 
-funding_menu_overlay.addEventListener('click', (e) => {
-    if (e.target === funding_menu_overlay) {
-        funding_menu_overlay.style.display = "none";
-    }
+const overlays = document.querySelectorAll(".funding-overlay");
+
+overlays.forEach(overlay => {
+    overlay.addEventListener('mousedown', (e) => {
+        let link;
+        if (e.target === overlay) {
+            overlay.style.display = "none";
+            link = location.href.split('/');
+            link = parseInt(link[link.length - 1]);
+            if (link) {
+                history.pushState({}, "", `/funds`);
+                document.title = `Сборы`
+                funding_window.removeAttribute('id');
+            }
+        }
+    });
 });
+
 
 fcw_create_btn.addEventListener('click', async (e) => {
     // const start_date = fcw_dates.querySelector(" #start");
@@ -266,6 +447,98 @@ fcw_create_btn.addEventListener('click', async (e) => {
     location.reload();
 });
 
+fw_cat_select.addEventListener('change', (e) => {
+    const selector = e.target;
+    selector.parentElement.id = selector.options[selector.selectedIndex].value;
+});
+
+fw_cat_add_btn.addEventListener('click', () => {
+    let new_cat = fw_cat.cloneNode(true);
+
+    new_cat.id = "none";
+    new_cat.querySelector(".cat-select").addEventListener('change', (e) => {
+        const selector = e.target;
+        selector.parentElement.id = selector.options[selector.selectedIndex].value;
+    });
+
+    new_cat.querySelector(".cat-remove").disabled = false;
+    new_cat.querySelector(".cat-amount").value = "0";
+
+    new_cat.querySelector(".cat-amount").addEventListener('focusout', updateTotalAmount);
+
+    fw_cat_list.appendChild(new_cat);
+
+    const fw_cat_remove_btn = new_cat.querySelector(".cat-remove");
+    fw_cat_remove_btn.addEventListener('click', () => {
+        new_cat.remove();
+        updateTotalAmount();
+    });
+});
+
+download_word.addEventListener('click', downloadWord);
+
+function updateTotalAmount() {
+    const amount_inputs = fw_cat_list.querySelectorAll(".cat-amount");
+
+    fw_total_amount.textContent = "0₽";
+    amount_inputs.forEach(amount => {
+        if (isNaN(parseInt(amount.value))) {
+            amount.value = 0
+        } else {
+            amount.value = Math.max(parseInt(amount.value), 0)
+        }
+        if (amount.value >= 0) {
+            fw_total_amount.textContent = parseInt(fw_total_amount.textContent) + parseInt(amount.value) + "₽";
+        }
+    });
+
+    if (parseInt(fw_total_amount.textContent) <= 15000) {
+        fw_total_amount.classList.remove("over");
+    } else {
+        fw_total_amount.classList.add("over")
+    }
+}
+
+async function downloadWord(e) {
+    let fund_window = e.target.parentElement.parentElement.parentElement.parentElement;
+    let cat_ids = {};
+
+    let cats = fund_window.querySelectorAll(".fw__cat");
+
+    for (let i = 0; i < cats.length; i++) {
+        let cat = cats[i];
+        let category = cat.querySelector(".cat-select").value;
+        let amount = cat.querySelector(".cat-amount").value;
+
+        if (category === "none") {
+            alert("Категория не может быть пустой!");
+            return;
+        }
+        if (cat_ids[category] || cat_ids[category] === 0) {
+            alert("Категория не может повторяться!");
+            return;
+        }
+
+        cat_ids[category] = parseInt(amount);
+    }
+
+    const responseData = {"categories": cat_ids, "fund_id": fund_window.id};
+
+    // const response = await fetch('/api/download_word', {
+    //     method: 'POST',
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: JSON.stringify(responseData)
+    // });
+    //
+    // console.log(response);
+}
+
+// const category_amount = document.querySelector(".cat-amount");
+// category_amount.addEventListener("input", (e) => {
+//     let value = e.target.value;
+//     console.log(value);
+//     if (value < 0) e.target.value = "0₽";
+// });
 
 
 // nav_link_funds.addEventListener("click", async (e) => {

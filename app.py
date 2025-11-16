@@ -6,6 +6,7 @@ from flask import Flask, redirect, url_for, session, request, render_template_st
 from authlib.integrations.flask_client import OAuth
 from pygments.lexers import templates
 import database.db_manager as db_manager
+import data.download.download_file as download_file
 from openpyxl import Workbook
 from io import BytesIO
 
@@ -16,11 +17,17 @@ def get_course(year, group):
 
     return course
 
+def get_stream(year, group):
+    if group.startswith("М"):
+        return year-4
+
+    return year
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "ajskdhA89sdjASD91823jsd0A8sdasdjA0s9d"
 
 sql = db_manager.DatabaseManager()
+downloader = download_file.DownloadFile()
 
 # Настройка OAuth
 oauth = OAuth(app)
@@ -101,18 +108,22 @@ def apps():
     return render_template('apps_page.html')
 
 @app.route('/funds')
-def funds():
+@app.route('/funds/<int:id>')
+def funds(id=None):
     if not session.get('id'):
         return redirect(url_for('homepage'))
+    title = "Сборы" if not id else f"Сбор №{id}"
+    fund_id = id if id else 'null'
+    print(fund_id)
 
-    return render_template('funds_page.html')
+    return render_template('funds_page.html', TITLE=title, FUND_ID=fund_id)
 
 @app.route('/api/funds/<int:id>')
 def open_fund(id):
     if not session.get('id'):
         return redirect(url_for('homepage'))
 
-    print(id)
+    # print(id)
     return jsonify({"id": id})
 
 
@@ -227,6 +238,23 @@ roles = {
     "Глава департамента": 2,
 }
 
+@app.route('/api/check_fund', methods=['POST', 'GET'])
+async def check_fund():
+    try:
+        response = request.get_json()
+        fund_id = int(response.get('id'))
+
+        got_apps = await sql.execute("check_fund.sql", (session.get('id'), fund_id,), fetch=True, one=False)
+
+        data = {
+            "apps_num": len(got_apps),
+        }
+
+        return jsonify({"status": "success", "data": data})
+    except Exception as e:
+        print(f"Ошибка при проверке сбора! Описание: {e}")
+        return jsonify({"status": "failure"})
+
 @app.route('/api/get_funds', methods=['GET'])
 async def get_funds():
 
@@ -238,14 +266,15 @@ async def get_funds():
     user_info = await sql.execute("get_user.sql", (session.get('id'),), fetch=True)
     user_info = user_info[-3:]
 
-    course = min(get_course(user_info[1], user_info[0]), 5)
+    stream = get_stream(user_info[1], user_info[0])
+    course = get_course(user_info[1], user_info[0])
 
     await sql.connect()
-    funds_list = await sql.execute("get_funds.sql", (course, session.get('id'), session.get('id'),), fetch=True, one=False)
+    funds_list = await sql.execute("get_funds.sql", (stream, course, session.get('id'),), fetch=True, one=False)
 
     data = {
         'can_change': roles[user_info[-1]],
-        'funds_list': funds_list[:30]
+        'funds_list': funds_list[:30],
     }
 
     return jsonify({"status": "success", "session_id": session.get('id'), "data" : data})
@@ -276,12 +305,13 @@ async def put_fund():
     data = request.get_json()
     user_data = json.loads((await get_own_to_funds()).data.decode('utf-8'))['data']
 
-    course = min(get_course(user_data['year'], user_data['group']), 5)
+    course = get_course(user_data['year'], user_data['group'])
+    stream = get_stream(user_data['year'], user_data['group'])
 
     await sql.execute("put_fund.sql",
                       (data['start_date'], data['end_date'],
                        session.get('id'), user_data['role'],
-                       course, user_data['department_ids'][0],
+                       course, stream, user_data['department_ids'][0],
                        b"table",))
 
     return jsonify({"status": "success"})
@@ -291,18 +321,92 @@ async def put_fund():
 @app.route('/api/get_apps', methods=['GET'])
 async def get_apps():
     try:
-        # try:
-        #     await sql.connect()
-        # except: print("Подключение уже произведено")
-        # finally:
-        #     role_info = await sql.execute("get_role.sql", (session.get('id'),), fetch=True)
-        #     role_info = (role_info[0], role_info[1], role_info[2] not in ["Студент"])
-        #     await sql.close()
+        await sql.connect()
 
-        return jsonify({"status": "success", "data" : ""})
+        apps_list = await sql.execute("get_applications.sql", (session.get('id'),), fetch=True, one=False)
+
+        data = {
+            'applications_list': apps_list
+        }
+
+        return jsonify({"status": "success", "session_id": session.get('id'), "data": data})
     except Exception as e:
         print(f"Ошибка при получении информации о заявлениях! Описание: {e}")
         return jsonify({"status": "failure"})
+
+@app.route('/api/get_cats', methods=['GET'])
+async def get_cats():
+    try:
+        await sql.connect()
+        categories = await sql.execute("get_categories.sql", fetch=True, one=False)
+        categories = {el[1]: el[0] for el in categories}
+
+        return jsonify({"status": "success", "data" : categories})
+    except Exception as e:
+        print(f"Ошибка при получении информации о категориях! Описание: {e}")
+        return jsonify({"status": "failure"})
+
+@app.route('/api/put_application', methods=['POST'])
+async def put_application():
+    try:
+        data = request
+
+        funds_list = [el[0] for el in json.loads((await get_funds()).data.decode('utf-8'))['data']['funds_list']]
+        fund_id = data.form.get('fund_id')
+        fund_id = int(fund_id) if fund_id else None
+
+        if fund_id not in funds_list:
+            return jsonify({"error": "такой сбор недоступен"}), 400
+
+        categories = data.form.get('categories')[1:-1].split(',')
+        categories = {int(el.split(':')[0][1:-1]):int(el.split(':')[1]) for el in categories}
+        total_amount = sum(categories.values())
+
+        comment = data.form.get('comment')
+        file_data = data.files.get('file').read()
+
+        app_id = hash(session.get('id') + str(file_data) + str(fund_id) + str(total_amount) + comment)
+        print(app_id)
+
+        # await sql.close()
+        # await sql.connect()
+        put_app_status = await sql.execute("put_application.sql",
+                                   (app_id, session.get('id'), total_amount, comment, file_data, fund_id,))
+        # app_id = (await sql.execute("last_row_id.sql", fetch=True))[0]
+        categories_with_appid = [(app_id, el[0], el[1],) for el in categories.items()]
+
+        print("Добавляю")
+        # await sql.close()
+        # await sql.connect()
+        put_app_to_cat_status = await sql.execute("put_app_to_cat.sql", categories_with_appid, many=True)
+        # await sql.close()
+        print("Добавил")
+        if any([put_app_to_cat_status == -1, put_app_status == -1]):
+            raise Exception("нарушена уникальность ID заявления")
+
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f"Ошибка при создании заявления! Описание: {e}")
+        return jsonify({"status": "failure"}), 400
+
+@app.route('/api/get_applications', methods=['GET'])
+async def get_applications(app_id):
+    await sql.connect()
+
+    apps_list = await sql.execute("get_applications.sql", (session.get('id'),), fetch=True, one=False)
+    await sql.close()
+
+    data = {
+        'applications_list': apps_list
+    }
+
+    return jsonify({"status": "success", "session_id": session.get('id'), "data": data})
+
+@app.route('/api/download_word', methods=['POST'])
+async def download_word():
+    data = request.get_json()
+
+    return jsonify({"status": "success"})
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=5000)
