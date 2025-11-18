@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 // Основные элементы
 const account_menu_close_btn = document.querySelector(".account_menu_close_btn");
-const account_menu_overlay = document.querySelector(".overlay");
+const account_menu_overlay = document.querySelector(".user-overlay");
 const user_icon = document.querySelector(".navigation__user");
 const navigation_link = document.querySelectorAll(".navigation__link");
 const logout_btn = document.querySelector(".sign_out_btn");
@@ -62,6 +62,65 @@ context.font = `${style.fontSize} ${style.fontFamily}`;
 
 let change_flag_phone = 0;
 let change_flag_telegram = 0;
+
+const cache = new Map();
+
+
+async function request(url, options = {}) {
+    if (cache.has(url)) return cache.get(url);
+
+    try {
+        const res = await fetch(url, options);
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = (await res.json())['data'];
+        cache.set(url, data);
+        return data;
+    } catch (error) {
+        console.error("Request failed:", error);
+        throw error;
+    }
+}
+
+const overlays = document.querySelectorAll(".overlay");
+
+overlays.forEach(overlay => {
+    overlay.addEventListener('mousedown', (e) => {
+        if (e.target === overlay) {
+            overlay.style.display = "none";
+        }
+    });
+});
+
+function showMessage(label, text) {
+    const message = document.querySelector(".message-win");
+    const progress = document.querySelector(".progress");
+
+    const main_label = message.querySelector(".text-1");
+    const aux_label = message.querySelector(".text-2");
+
+    let timer1, timer2;
+
+    main_label.textContent = label;
+    aux_label.textContent = text;
+
+    message.classList.add("active");
+    progress.classList.add("active");
+
+    timer1 = setTimeout(() => {
+        message.classList.remove("active");
+    }, 5000); //1s = 1000 milliseconds
+
+    timer2 = setTimeout(() => {
+        progress.classList.remove("active");
+    }, 5300);
+
+    message.classList.remove("show");
+}
+
 
 // Вычисление курса обучения
 async function getCourse(year) {

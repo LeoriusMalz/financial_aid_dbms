@@ -2,7 +2,7 @@
 /*    outline: 1px solid red;*/
 /*}*/
 
-.apps {
+.application-page {
     display: none;
     font-family: "VK Sans Display", serif;
     color: #d1d1d1;
@@ -10,7 +10,28 @@
     width: 95%;
 }
 
-.apps__grid {
+/* ======== Пустая страница ======== */
+
+.application-empty {
+    position: absolute;
+    top: 30vh;
+    left: 28vw;
+
+    display: none;
+
+    font-size: 40px;
+    font-weight: bolder;
+    color: white;
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0.79),
+                 0 0 2px rgba(255, 255, 255, 0.7),
+                 0 0 4px rgba(255, 255, 255, 0.5),
+                 0 0 8px rgba(255, 255, 255, 0.3),
+                 0 0 16px rgba(255, 255, 255, 0.1);
+}
+
+/* ======== Сетка заявлений ======== */
+
+.application-grid {
     display: flex;
     position: relative;
     justify-content: start;
@@ -27,7 +48,7 @@
     padding: 5px;
 }
 
-.apps__element {
+.application-grid__element {
     width: 295px;
     height: 295px;
     min-width: 100px;
@@ -59,7 +80,7 @@
     transition: 0.2s ease-out;
 }
 
-.apps__element:hover {
+.application-grid__element:hover {
     /*--color: rgba(255, 255, 255, 0.45);*/
     box-shadow: 0 0 8px rgba(var(--color)),
                  0 0 16px rgba(var(--color)),
@@ -72,29 +93,29 @@
     z-index: 4;
 }
 
-.apps__element.approve {
+.application-grid__element.approve {
     --color: 0, 255, 0;
     --grad_color: 0, 255, 0;
 }
 
-.apps__element.reject {
+.application-grid__element.reject {
     --color: 255, 0, 0;
     --grad_color: 255, 0, 0;
 }
 
 
-.apps__element_month {
+.application-grid__element__month {
     position: relative;
     top: -7px;
     font-size: 37px;
 }
 
-.apps__element_date {
+.application-grid__element__date {
     position: relative;
     top: -7px;
 }
 
-.apps__element_type {
+.application-grid__element__label {
     /*outline-style: solid;*/
     /*outline-color: #e53935;*/
     position: relative;
@@ -108,8 +129,206 @@
     text-wrap: wrap;
 }
 
+/* ======== Окно заявления ======== */
 
-.funding__element_status img {
-    max-width: 50px;
-    border-radius: 100%;
+.application-window-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 5;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.29);
+}
+
+.application-window {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    overflow-y: auto;
+    width: 28%;
+    min-width: 360px;
+    max-width: 460px;
+    min-height: 250px;
+    max-height: 470px;
+    padding: 20px;
+    border-radius: 30px;
+
+    font-weight: bold;
+
+    background: rgba(245, 245, 245, 0.3);
+    box-shadow: 0 0 2px rgba(255, 255, 255),
+                 0 0 4px rgba(255, 255, 255),
+                 -2px 0 8px rgba(255, 255, 255, 0.75),
+                 inset 5px 1px 5px rgba(255, 255, 255, 0.91),
+                 inset -2px 0 6px rgba(179, 179, 179, 0.44);
+    backdrop-filter: blur(20px);
+}
+
+.application-window__label {
+    font-size: 40px;
+    color: rgba(var(--color-text-white), 0.78);
+    text-shadow: 0 0 1px rgba(var(--color-text-white)),
+                 0 0 2px rgba(var(--color-text-white)),
+                 0 0 4px rgba(var(--color-text-white), 0.75);
+}
+
+.application-window__total {
+    position: fixed;
+    top: 70px;
+    
+    font-size: 25px;
+    color: rgba(var(--color-text-gold), 0.78);
+    text-shadow: 0 0 1px rgba(var(--color-text-gold)),
+                 0 0 2px rgba(var(--color-text-gold)),
+                 0 0 4px rgba(var(--color-text-gold), 0.75);
+}
+
+.application-window__categories-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 50px;
+    margin-bottom: 8px;
+
+    font-size: 15px;
+}
+
+.categories-list__table {
+    width: 90%;
+}
+
+.categories-list__element {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    margin-bottom: 5px;
+    margin-left: -5px;
+    padding-left: 5px;
+    border-left-style: solid;
+    border-left-width: 2px;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+    border-left: rgba(var(--color-text-white), 0.6);
+}
+
+.categories-list__element__name {
+    width: 50%;
+
+    color: rgba(var(--color-text-white), 0.78);
+}
+
+.categories-list__element__amount {
+    font-size: 19px;
+    color: rgba(var(--color-text-white), 0.78);
+    text-shadow: 0 0 1px rgba(var(--color-text-white)),
+                 0 0 2px rgba(var(--color-text-white), 0.75);
+}
+
+.application-window__comment {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    width: 90%;
+
+    color: rgba(var(--color-text-white), 0.78);
+}
+
+.application-window__comment textarea {
+    width: 70%;
+    min-width: 70%;
+    max-width: 100%;
+    height: auto;
+    min-height: 60px;
+    max-height: 120px;
+    margin-top: 5px;
+    padding: 10px;
+    border-style: hidden;
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-family: "VK Sans Display", serif;
+    color: #000000;
+
+    background: rgba(255, 255, 255, 0.34);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 1px rgba(255, 255, 255),
+                 0 0 2px rgba(255, 255, 255),
+                 -2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset 2px 1px 2px rgba(255, 255, 255, 0.91),
+                 inset -1px 0 3px rgba(179, 179, 179, 0.44),
+                 2px 0 4px rgba(255, 255, 255, 0.75),
+                 inset -2px -1px 2px rgba(255, 255, 255, 0.91),
+                 inset 1px 0 3px rgba(179, 179, 179, 0.44);
+    outline-width: 0;
+}
+
+.application-window__buttons {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.button {
+    width: 30%;
+    min-height: 35px;
+    margin-top: 10px;
+    border-style: hidden;
+    border-radius: 10px;
+
+    font-size: 24px;
+    color: rgba(var(--icon-color));
+
+    background: rgba(var(--button-color1), 0.23);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 2px rgba(var(--button-color2)),
+                 0 0 4px rgba(var(--button-color2)),
+                 -2px 0 8px rgba(var(--button-color2), 0.75),
+                 inset 5px 1px 5px rgba(var(--button-color2), 0.91),
+                 inset -2px 0 6px rgba(var(--button-color3), 0.44);
+
+    transition: 0.2s;
+
+    cursor: pointer;
+}
+
+.button:hover {
+    text-shadow: 0 0 2px rgba(var(--icon-color), 0.61),
+                0 0 4px rgba(var(--icon-color), 0.71);
+
+    background: rgba(var(--button-color1), 0.03);
+    box-shadow: 0 0 2px rgba(var(--button-color2)),
+                 0 0 4px rgba(var(--button-color2)),
+                 -2px 0 8px rgba(var(--button-color2), 0.75),
+                 inset 5px 1px 5px rgba(var(--button-color2), 0.91),
+                 inset -2px 0 6px rgba(var(--button-color3), 0.44),
+                 2px 0 8px rgba(var(--button-color2), 0.75),
+                 inset -5px -1px 5px rgba(var(--button-color2), 0.91),
+                 inset 2px 0 6px rgba(var(--button-color3), 0.44);
+}
+
+.download {
+    --icon-color: var(--color-text-white);
+    --button-color1: 230, 230, 230;
+    --button-color2: 255, 255, 255;
+    --button-color3: 179, 179, 179;
+}
+
+.delete {
+    --icon-color: var(--color-text-red);
+    --button-color1: 230, 0, 0;
+    --button-color2: 255, 0, 0;
+    --button-color3: 179, 0, 0;
 }

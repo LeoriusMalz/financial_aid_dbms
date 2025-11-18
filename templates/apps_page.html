@@ -6,12 +6,43 @@
 {% endblock %}
 
 {% block content %}
-<div class="apps">
-    <div class="apps__grid">
-<!--        <div class="apps__element">-->
-<!--            <div class="apps__element_month">Сентябрь</div>-->
-<!--            <div class="apps__element_date">03.09</div>-->
-<!--            <div class="apps__element_type">5 курс</div>-->
+<div class="application-page">
+    <div class="application-window-overlay overlay" style="display: none" aria-hidden="false">
+        <div class="application-window" aria-modal="true">
+            <div class="application-window__label"></div>
+            <div class="application-window__total">0₽</div>
+            <div class="application-window__categories-list">
+                <table class="categories-list__table">
+<!--                    <tr class="categories-list__element">-->
+<!--                        <td class="categories-list__element__name">Потеря кормильца</td>-->
+<!--                        <td class="categories-list__element__amount">10000₽</td>-->
+<!--                    </tr>-->
+                </table>
+            </div>
+            <div class="application-window__comment">
+                <label for="user">Комментарий</label>
+                <textarea id="user" rows="3" placeholder="Комментарий отсутствует" readonly></textarea>
+            </div>
+            <div class="application-window__buttons">
+                <button class="button download" title="Скачать заявление">
+                    <i class='fa fa-download'></i>
+                </button>
+                <button class="button delete" title="Удалить заявление">
+                    <i class='fa fa-remove'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="application-empty">
+        Вы пока не подавали заявлений 💸
+    </div>
+
+    <div class="application-grid">
+<!--        <div class="application-grid__element">-->
+<!--            <div class="application-grid__element__month">Сентябрь</div>-->
+<!--            <div class="application-grid__element__date">03.09</div>-->
+<!--            <div class="application-grid__element__label">5 курс</div>-->
 <!--        </div>-->
 
 <!--        <div class="apps__element approve">-->
@@ -82,5 +113,8 @@
     </div>
 </div>
 
+<script>
+    const APP_ID = {{ APP_ID }};
+</script>
 <script type="text/javascript" src="../static/scripts/apps.js"></script>
 {% endblock %}

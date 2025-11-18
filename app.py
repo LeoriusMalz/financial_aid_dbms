@@ -1,6 +1,7 @@
 import asyncio
 import json
 from datetime import datetime
+from sqlite3 import SQLITE_IOERR_DELETE
 
 from flask import Flask, redirect, url_for, session, request, render_template_string, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
@@ -101,11 +102,13 @@ async def authorize():
         return redirect(url_for('homepage'))
 
 @app.route('/apps')
-def apps():
+@app.route('/apps/<int:id>')
+def apps(id=None):
     if not session.get('id'):
         return redirect(url_for('homepage'))
+    app_id = id if id else 'null'
 
-    return render_template('apps_page.html')
+    return render_template('apps_page.html', APP_ID=app_id)
 
 @app.route('/funds')
 @app.route('/funds/<int:id>')
@@ -346,7 +349,7 @@ async def get_cats():
         print(f"Ошибка при получении информации о категориях! Описание: {e}")
         return jsonify({"status": "failure"})
 
-@app.route('/api/put_application', methods=['POST'])
+@app.route('/api/put_application', methods=['PUT'])
 async def put_application():
     try:
         data = request
@@ -365,7 +368,7 @@ async def put_application():
         comment = data.form.get('comment')
         file_data = data.files.get('file').read()
 
-        app_id = hash(session.get('id') + str(file_data) + str(fund_id) + str(total_amount) + comment)
+        app_id = hash(session.get('id') + str(file_data) + str(fund_id) + str(total_amount) + comment) % 2**32
         print(app_id)
 
         # await sql.close()
@@ -390,7 +393,7 @@ async def put_application():
         return jsonify({"status": "failure"}), 400
 
 @app.route('/api/get_applications', methods=['GET'])
-async def get_applications(app_id):
+async def get_applications():
     await sql.connect()
 
     apps_list = await sql.execute("get_applications.sql", (session.get('id'),), fetch=True, one=False)
@@ -402,7 +405,43 @@ async def get_applications(app_id):
 
     return jsonify({"status": "success", "session_id": session.get('id'), "data": data})
 
-@app.route('/api/download_word', methods=['POST'])
+@app.route('/api/get_application/<int:id>', methods=['GET', 'POST'])
+async def get_application(id):
+    app_id = id
+    application = await sql.execute("get_application.sql", (session.get('id'), app_id,), fetch=True, one=False)
+
+    if len(application) == 0:
+        return jsonify({"status": "failure", "data": 0})
+
+    categories = [(el[-2], el[-1]) for el in application]
+    application = application[0][:-2]
+    res = {
+        'application': application,
+        'categories': categories,
+    }
+
+    return jsonify({"status": "success", "data": res})
+
+@app.route('/api/delete_application/<int:id>', methods=['DELETE', 'GET'])
+async def delete_application(id):
+    app_id = id
+    is_deleted = True
+
+    check = await sql.execute("check_application.sql", (session.get('id'), app_id,), fetch=True)
+    check = check is not None and len(check) > 0
+
+    if check:
+        await sql.execute("delete_application.sql", (session.get('id'), app_id,))
+    else:
+        is_deleted = False
+
+    res = {
+        'is_deleted': is_deleted,
+    }
+
+    return jsonify({"status": "success", "data": res})
+
+@app.route('/api/download_word', methods=['GET', 'POST'])
 async def download_word():
     data = request.get_json()
 

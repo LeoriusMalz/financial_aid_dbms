@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS fundings (
 );
 
 CREATE TABLE IF NOT EXISTS applications (
-    app_id          INTEGER         PRIMARY KEY AUTOINCREMENT,
-    user_id         INTEGER         NOT NULL,
+    app_id          BIGINT         PRIMARY KEY,
+    user_id         BIGINT         NOT NULL,
     request_amount  INTEGER         NOT NULL DEFAULT 0 CHECK(request_amount >= 0),
     recomm_amount   INTEGER         NOT NULL DEFAULT 0 CHECK(request_amount >= 0),
     final_amount    INTEGER         NOT NULL DEFAULT 0 CHECK(request_amount >= 0),
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 CREATE TABLE IF NOT EXISTS applications_categories (
-    app_id      INTEGER,
+    app_id      BIGINT,
     cat_id      INTEGER,
     amount      INTEGER         NOT NULL DEFAULT 0 CHECK(amount >= 0),
 

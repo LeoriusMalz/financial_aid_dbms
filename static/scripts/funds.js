@@ -148,32 +148,6 @@ async function getCategories() {
     }
 }
 
-function showMessage(label, text) {
-    const message = document.querySelector(".message-win");
-    const progress = document.querySelector(".progress");
-
-    const main_label = message.querySelector(".text-1");
-    const aux_label = message.querySelector(".text-2");
-
-    let timer1, timer2;
-
-    main_label.textContent = label;
-    aux_label.textContent = text;
-
-    message.classList.add("active");
-    progress.classList.add("active");
-
-    timer1 = setTimeout(() => {
-        message.classList.remove("active");
-    }, 5000); //1s = 1000 milliseconds
-
-    timer2 = setTimeout(() => {
-        progress.classList.remove("active");
-    }, 5300);
-
-    message.classList.remove("show");
-}
-
 function showFunds(fund, session_id) {
     let dest = fund[6];
 
@@ -230,9 +204,9 @@ function showFunds(fund, session_id) {
 }
 
 function animatePanel() {
-    const fund_element = document.querySelectorAll(".funding__element");
+    const fund_elements = document.querySelectorAll(".funding__element");
 
-    fund_element.forEach(element =>
+    fund_elements.forEach(element => {
         element.addEventListener('mousemove', (e) => {
             const rect = element.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -246,19 +220,17 @@ function animatePanel() {
 
             element.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08) translateX(40px)`;
         })
-    );
 
-    fund_element.forEach(element =>
         element.addEventListener('mouseleave', () => {
             element.style.transform = `rotateX(0deg) rotateY(0deg)`
         })
-    );
+    });
 }
 
 function clickEvent() {
-    const fund_element = document.querySelectorAll(".funding__element.true");
+    const fund_elements = document.querySelectorAll(".funding__element.true");
 
-    fund_element.forEach(element =>
+    fund_elements.forEach(element =>
         element.addEventListener('click', async () => {
             let id = element.id;
             let check = await checkFund4App(id);
@@ -306,7 +278,7 @@ async function uploadFile(cats, comment, file, fund) {
     form.append('fund_id', fund);
 
     const response = await fetch('/api/put_application', {
-        method: 'POST',
+        method: 'PUT',
         body: form
     });
 
@@ -382,9 +354,9 @@ fundings_create_btn.addEventListener('click', async (e) => {
     start.value = now;
 });
 
-const overlays = document.querySelectorAll(".funding-overlay");
+const fund_overlays = document.querySelectorAll(".funding-overlay");
 
-overlays.forEach(overlay => {
+fund_overlays.forEach(overlay => {
     overlay.addEventListener('mousedown', (e) => {
         let link;
         if (e.target === overlay) {

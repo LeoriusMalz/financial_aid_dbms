@@ -1,39 +1,3 @@
-// document.querySelector('.overlay').addEventListener('click', (e) => {
-//     if (e.target.classList.contains('overlay')) {
-//         document.querySelector('.overlay').style.display = 'none';
-//     }
-// });
-
-// async function editContacts(object) {
-//     object.classList.add("active");
-//
-//     function handleClickOutside(event) {
-//         const isClickInside = object.contains(event.target);
-//         if (!isClickInside) {
-//             cleanup();
-//             object.classList.remove("active");
-//            
-//             console.log(object.value.replace(/\D/g, ""));
-//         }
-//     }
-//
-//     // function handleKeydown(event) {
-//     //     console.log('Key released in input:', event.key);
-//     //     if (event.key === 'Enter') {
-//     //         object.classList.remove("active");
-//     //         cleanup();
-//     //     }
-//     // }
-//     //
-//     document.addEventListener("click", handleClickOutside);
-//     // document.addEventListener("keydown", handleKeydown);
-//
-//     function cleanup() {
-//         document.removeEventListener("click", handleClickOutside);
-//         // document.removeEventListener("keydown", handleKeydown);
-//     }
-// }
-
 const MONTHS = {
     1: "Январь",
     2: "Февраль",
@@ -48,118 +12,225 @@ const MONTHS = {
     11: "Ноябрь",
     12: "Декабрь",
 };
+const API_GET_APPS = '/api/get_applications';
+const API_GET_APP = '/api/get_application';
+const API_DELETE_APP = '/api/delete_application';
+// const APP_ID = null;
 
-// Подгрузка инфы о пользователе при загрузке страницы
-document.addEventListener('DOMContentLoaded', async function () {
-    await getApps();
-});
-//
-// const nav_link_funds = document.querySelector(".navigation__link#funds");
-// const nav_link_apps = document.querySelector(".navigation__link#apps");
-//
-//
+const applicationPage = document.querySelector(".application-page");
+const applicationEmptyPage = applicationPage.querySelector(".application-empty");
+const applicationWindowOverlay = applicationPage.querySelector(".application-window-overlay");
+const applicationGrid = applicationPage.querySelector(".application-grid");
 
-async function getApps() {
-    const response = await (await fetch('/api/get_apps')).json();
-    const data = response.data;
+const applicationWindow = applicationWindowOverlay.querySelector(".application-window");
+const applicationWindowLabel = applicationWindow.querySelector(".application-window__label");
+const applicationWindowTotal = applicationWindow.querySelector(".application-window__total");
+const applicationWindowComment = applicationWindow.querySelector(".application-window__comment textarea");
+const applicationWindowCatsListTable = applicationWindow.querySelector(".categories-list__table");
 
-    const apps_page = document.querySelector(".apps");
+const applicationWindowButtons = applicationWindow.querySelector(".application-window__buttons");
+const downloadButton = applicationWindowButtons.querySelector(".button.download");
+const deleteButton = applicationWindowButtons.querySelector(".button.delete");
 
-    if (response["status"] === "success") {
-        apps_page.style.display = "block";
-        const apps_list = data['applications_list'];
-        apps_list.forEach(app => {
-            showApp(app);
-        })
+// =============================== //
+// ===== АСИНХРОННЫЕ ФУНКЦИИ ===== //
+// =============================== //
 
-    } else {
-        console.log(response["status"]);
+async function getApplications() {
+    const data = await request(API_GET_APPS);
+
+    applicationPage.style.display = "block";
+    const applications = data['applications_list'];
+
+    if (!applications.length) {
+        applicationEmptyPage.style.display = "block";
     }
 
-    animate();
+    applications.forEach(app => {
+        showApplicationCell(app);
+    })
 }
 
-const apps_grid = document.querySelector(".apps__grid");
-// const app_element = apps_grid.querySelectorAll(".apps__element");
-// const app_element_month = app_element.querySelector(".apps__element_month");
-// const app_element_date = app_element.querySelector(".apps__element_date");
-// const app_element_type = app_element.querySelector(".apps__element_type");
-
-function showApp(app) {
-    const app_id = app[0];
-    const month = MONTHS[parseInt(app[3])];
-    const app_date = app[2];
-
-    let approve = null;
-    if (app[7] === 1) {
-        approve = "approve";
-    } else if (app[7] === 0) {
-        approve = "reject";
+async function getApplication(id) {
+    const options = {
+        method: 'GET',
     }
+    const url = `${API_GET_APP}/${id}`;
+    const response = await request(url, options);
 
-    let label = "";
-    if (app[4] === 1) {
-        label = `${app[5]} курс`;
+    if (!response) {
+        showMessage("Ошибка!", "Такое заявление недоступно!");
     } else {
-        label = app[6];
+        showApplication(response);
     }
-
-    const newApp = document.createElement('div');
-    newApp.classList.add("apps__element");
-    if (approve) newApp.classList.add(approve);
-    newApp.id = app_id;
-
-    const newApp_month = document.createElement('div');
-    newApp_month.classList.add("apps__element_month");
-    newApp_month.textContent = month;
-
-    const newApp_date = document.createElement('div');
-    newApp_date.classList.add("apps__element_date");
-    newApp_date.textContent = app_date;
-
-    const newApp_label = document.createElement('div');
-    newApp_label.classList.add("apps__element_type");
-    newApp_label.textContent = label;
-
-    newApp.appendChild(newApp_month);
-    newApp.appendChild(newApp_date);
-    newApp.appendChild(newApp_label);
-
-    apps_grid.appendChild(newApp);
 }
 
-function animate() {
-    const app_element = apps_grid.querySelectorAll(".apps__element");
+async function deleteApplication(id) {
+    const options = {
+        method: 'DELETE',
+    }
+    console.log(id);
+    const url = `${API_DELETE_APP}/${id}`;
+    const response = await request(url, options);
 
-    app_element.forEach(element => {
-        element.addEventListener('mousemove', (e) => {
-            const rect = element.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+    if (!response['is_deleted']) {
+        showMessage("Ошибка!", "Это заявление удалить нельзя!");
+    } else {
+        sessionStorage.setItem('deletedStatus', JSON.stringify(true));
+        hideApplication(true);
+    }
+}
 
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
+// =================== //
+// ===== ФУНКЦИИ ===== //
+// =================== //
 
-            const rotateX = ((y - centerY) / centerY) * 15;
-            const rotateY = ((x - centerX) / centerX) * -15;
+// ===== отображение заявлений ===== //
 
-            element.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08)`;
-        })
+function showApplicationCell(application) {
+    const applicationID = application[0];
+    const applicationMonth = MONTHS[parseInt(application[3])];
+    const applicationDate = application[2];
 
-        element.addEventListener('mouseleave', () => {
-            element.style.transform = `rotateX(0deg) rotateY(0deg)`
-        })
+    let applicationApprove = null;
+    if (application[7] === 1) {
+        applicationApprove = "approve";
+    } else if (application[7] === 0) {
+        applicationApprove = "reject";
+    }
+
+    let applicationLabel = "";
+    if (application[4] === 1) {
+        applicationLabel = `${application[5]} курс`;
+    } else {
+        applicationLabel = application[6];
+    }
+
+    const newApplication = document.createElement('div');
+    newApplication.classList.add("application-grid__element");
+    if (applicationApprove) newApplication.classList.add(applicationApprove);
+    newApplication.id = applicationID;
+
+    const newApplicationMonth = document.createElement('div');
+    newApplicationMonth.classList.add("application-grid__element__month");
+    newApplicationMonth.textContent = applicationMonth;
+
+    const newApplicationDate = document.createElement('div');
+    newApplicationDate.classList.add("application-grid__element__date");
+    newApplicationDate.textContent = applicationDate;
+
+    const newApplicationLabel = document.createElement('div');
+    newApplicationLabel.classList.add("application-grid__element__label");
+    newApplicationLabel.textContent = applicationLabel;
+
+    newApplication.appendChild(newApplicationMonth);
+    newApplication.appendChild(newApplicationDate);
+    newApplication.appendChild(newApplicationLabel);
+
+    applicationGrid.appendChild(newApplication);
+    animateCell(newApplication);
+    clickEvent(newApplication);
+}
+
+function animateCell(cell) {
+    cell.addEventListener('mousemove', (e) => {
+        const rect = cell.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = ((y - centerY) / centerY) * 15;
+        const rotateY = ((x - centerX) / centerX) * -15;
+
+        cell.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08)`;
+    })
+
+    cell.addEventListener('mouseleave', () => {
+        cell.style.transform = `rotateX(0deg) rotateY(0deg)`
+    })
+}
+
+function clickEvent(cell) {
+    cell.addEventListener('click', async () => {
+        const applicationID = cell.id;
+        history.pushState({}, "", `/apps/${applicationID}`);
+
+        await getApplication(applicationID);
+    })
+}
+
+// ===== отображение окна с информацией о заявлении ===== //
+
+function showApplication(info) {
+    applicationWindowCatsListTable.replaceChildren();
+
+    const application = info['application'];
+    const categories = info['categories'];
+
+    applicationWindow.id = application[0];
+    applicationWindowTotal.textContent = `${application[1]}₽`;
+    applicationWindowComment.value = application[2];
+    applicationWindowLabel.textContent = application[3];
+
+    downloadButton.id = application[0];
+    deleteButton.id = application[0];
+
+    categories.forEach(cat => {
+        let name = cat[0];
+        let amount = cat[1];
+
+        const catElement = document.createElement('tr');
+        catElement.classList.add("categories-list__element");
+
+        const catElementName = document.createElement('td');
+        const catElementAmount = document.createElement('td');
+        catElementName.classList.add("categories-list__element__name");
+        catElementAmount.classList.add("categories-list__element__amount");
+
+        catElementName.textContent = name;
+        catElementAmount.textContent = `${amount}₽`;
+
+        catElement.appendChild(catElementName);
+        catElement.appendChild(catElementAmount);
+
+        applicationWindowCatsListTable.appendChild(catElement);
     });
+
+    applicationWindowOverlay.style.display = "flex";
 }
 
-// app_element.forEach(element =>
-//     element.addEventListener('mouseleave', () => {
-//         element.style.transform = `rotateX(0deg) rotateY(0deg)`
-//     })
-// );
+function hideApplication(reload = false) {
+    history.pushState({}, "", `/apps`);
+    applicationWindow.removeAttribute('id');
+    if (reload) {location.reload();}
+}
 
+applicationWindowOverlay.addEventListener('mousedown', (e) => {
+    if (e.target === applicationWindowOverlay) {
+        hideApplication();
+    }
+});
 
-// nav_link_funds.addEventListener("click", async (e) => {
-//     // fundings_page.style.display = "block";
-//     await getFunds();
-// });
+deleteButton.addEventListener('click', async (e) => {
+    if (confirm("Вы уверены, что хотите удалить заявление? Эта операция необратима!")) {
+        await deleteApplication(e.target.id);
+    }
+});
+
+// ============================= //
+// ===== ЗАГРУЗКА СТРАНИЦЫ ===== //
+// ============================= //
+
+document.addEventListener('DOMContentLoaded', async function () {
+    await getApplications();
+    if (APP_ID) {
+        await getApplication(APP_ID);
+    }
+
+    if (JSON.parse(sessionStorage.getItem("deletedStatus"))) {
+        showMessage("Успех!", "Заявление удалено!");
+        sessionStorage.removeItem("deletedStatus");
+    }
+});
