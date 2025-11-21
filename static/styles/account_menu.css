@@ -1,6 +1,6 @@
 
 /* Внешний контейнер */
-.user-overlay {
+.account-menu-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -8,7 +8,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.2);
 
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
 
@@ -16,12 +16,12 @@
     z-index: 5;
 }
 
-.account_menu {
+.account-menu {
     position: relative;
 }
 
 /* Карточка пользователя */
-.account_card {
+.account-menu__info {
     /*background: rgba(245, 245, 245, 0.6);*/
     background: rgba(0, 0, 0, 0.6);
 
@@ -57,7 +57,7 @@
     border-radius: 30px;
 }
 
-.account_card::-webkit-scrollbar {
+.account-menu__info::-webkit-scrollbar {
     width: 0;
 }
 
@@ -70,7 +70,7 @@
     border-radius: 10px;
 }
 
-.account_menu_close_btn {
+.account-menu__close-button {
     position: absolute;
     display: flex;
 
@@ -90,11 +90,11 @@
     color: darkred;
 }
 
-.account_menu_close_btn:hover {
+.account-menu__close-button:hover {
     background: #e53935;
 }
 
-.sign_out_btn {
+.account-menu__sign-out-button {
     position: absolute;
     display: flex;
 
@@ -117,25 +117,25 @@
     color: darkred;
 }
 
-.sign_out_btn:hover {
+.account-menu__sign-out-button:hover {
     background: #f4d966;
 }
 
 /* Аватарка */
-.user_avatar {
+.account-menu__info__avatar {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.user_avatar img {
+.account-menu__info__avatar img {
     border-radius: 100%;
     width: 200px;
     height: 40%;
 }
 
 /* ФИО и почта */
-.user_fullname {
+.account-menu__info__fullname {
     font-size: 37px;
     font-weight: bolder;
     /*color: #3c0000;*/
@@ -152,7 +152,7 @@
     margin-top: 20px;
 }
 
-.user_email {
+.account-menu__info__email {
     font-size: 20px;
     font-weight: lighter;
     color: rgba(255, 255, 255, 0.9);
@@ -164,7 +164,7 @@
     cursor: copy;
 }
 
-.user_email:hover {
+.account-menu__info__email:hover {
     color: rgba(255, 255, 255, 0.9);
     text-shadow: 0 0 2px rgba(255, 255, 255, 0.9),
                  0 0 4px rgba(255, 255, 255, 0.8);
@@ -177,7 +177,7 @@
 }
 
 /* Учебная информация */
-.user_study, .user_contacts {
+.account-menu__info__study, .account-menu__info__contacts {
     display: block;
 
     font-weight: bold;
@@ -203,7 +203,7 @@
 }
 
 /* Контакты */
-.user_contacts {
+.account-menu__info__contacts {
     font-weight: normal;
     margin-top: 13px;
 }
@@ -254,13 +254,18 @@
     background-color: rgba(128, 128, 128, 0.2);
     border-style: hidden;
     border-radius: 10px;
+
+    transition: 0.2s;
 }
 
-#phone-number.active, #tg-nickname.active {
+#phone-number:focus, #tg-nickname:focus {
     background-color: rgba(128, 128, 128, 0.2);
     border-style: hidden;
     border-width: 0;
     border-radius: 10px;
+    outline-color: white;
+
+    transition: 0.2s;
 }
 
 #phone-number.wrong, #tg-nickname.wrong {
@@ -271,14 +276,52 @@
     color: #6e0000;
 }
 
+.submit-button {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    width: 30px;
+    margin-left: 10px;
+    margin-top: 8px;
+
+    background: rgba(197, 197, 197, 0.06);
+    border-style: hidden;
+    border-radius: 100%;
+    box-shadow: -1px 1px 2px rgba(197, 197, 197, 0.2),
+                1px -1px 2px rgba(197, 197, 197, 0.2),
+                inset -1px 1px 2px rgba(197, 197, 197, 0.1);
+    backdrop-filter: blur(10px);
+
+    font-size: 20px;
+    color: rgba(173, 255, 47, 0.68);
+    text-shadow: 0 0 2px rgba(173, 255, 47, 0.68),
+                 0 0 4px rgba(173, 255, 47, 0.48),
+                 0 0 8px rgba(173, 255, 47, 0.28);
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.submit-button:hover {
+    box-shadow: -1px 1px 2px rgba(197, 197, 197, 0.7),
+                inset 1px -1px 2px rgba(197, 197, 197, 0.7),
+                inset -1px 1px 2px rgba(197, 197, 197, 0.7),
+                1px -1px 2px rgba(197, 197, 197, 0.7);
+
+    text-shadow: 0 0 2px rgba(173, 255, 47, 1),
+                 0 0 4px rgba(173, 255, 47, 0.8),
+                 0 0 8px rgba(173, 255, 47, 0.6);
+}
+
 /* Информация о департаментах */
-.user_departments {
+.account-menu__info__departments {
     display: block;
 
     margin-top: 35px;
 }
 
-#department-title {
+.departments-title {
     display: block;
     text-align: center;
 
@@ -288,7 +331,7 @@
     color: white;
 }
 
-.departments_grid {
+.departments-grid {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -327,7 +370,7 @@
     padding: 5px;
 }
 
-.user_role {
+.account-menu__info__role {
     display: none;
 
     font-weight: bold;

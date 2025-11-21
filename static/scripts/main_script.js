@@ -1,83 +1,78 @@
-// document.querySelector('.overlay').addEventListener('click', (e) => {
-//     if (e.target.classList.contains('overlay')) {
-//         document.querySelector('.overlay').style.display = 'none';
-//     }
-// });
+const PATH_NAMES = {
+    "funds": '/funds',
+    "apps": '/apps',
+    "guide": '/guide',
+    "department": '/department',
+    "settings": '/settings',
+}
+const API_GET_USER_SESSION = '/api/get_user_session';
+const API_GET_USER_INFO = '/api/get_user_info';
+const API_CHANGE_CONTACTS = '/api/change_contacts';
+const API_LOGOUT = '/api/logout';
 
-// async function editContacts(object) {
-//     object.classList.add("active");
-//
-//     function handleClickOutside(event) {
-//         const isClickInside = object.contains(event.target);
-//         if (!isClickInside) {
-//             cleanup();
-//             object.classList.remove("active");
-//            
-//             console.log(object.value.replace(/\D/g, ""));
-//         }
-//     }
-//
-//     // function handleKeydown(event) {
-//     //     console.log('Key released in input:', event.key);
-//     //     if (event.key === 'Enter') {
-//     //         object.classList.remove("active");
-//     //         cleanup();
-//     //     }
-//     // }
-//     //
-//     document.addEventListener("click", handleClickOutside);
-//     // document.addEventListener("keydown", handleKeydown);
-//
-//     function cleanup() {
-//         document.removeEventListener("click", handleClickOutside);
-//         // document.removeEventListener("keydown", handleKeydown);
-//     }
-// }
 
-// Подгрузка инфы о пользователе при загрузке страницы
-document.addEventListener('DOMContentLoaded', async function () {
-    console.log("Loaded!");
-    document.querySelector(`.navigation__link#${window.location.pathname.substring(1).split('/')[0]}`).classList.add("active");
+const pageHeader = document.querySelector(".page-header");
+const navigationMenu = pageHeader.querySelector(".navigation__menu");
+const navigationLinks = navigationMenu.querySelectorAll(".navigation__link");
+const navigationUser = pageHeader.querySelector(".navigation__user img");
 
-    await getUserSession();
-});
+const messageWindow = document.querySelector(".message-window");
+const messageWindowProgress = messageWindow.querySelector(".message-window-progress");
+const messageMainLabel = messageWindow.querySelector(".message__text-1");
+const messageAuxLabel = messageWindow.querySelector(".message__text-2");
 
-// Основные элементы
-const account_menu_close_btn = document.querySelector(".account_menu_close_btn");
-const account_menu_overlay = document.querySelector(".user-overlay");
-const user_icon = document.querySelector(".navigation__user");
-const navigation_link = document.querySelectorAll(".navigation__link");
-const logout_btn = document.querySelector(".sign_out_btn");
-const phone = document.querySelector("#phone-number");
-const telegram = document.querySelector("#tg-nickname");
-const departments_grid = document.querySelector(".departments_grid");
-const department_block = document.querySelector(".user_departments");
+const overlays = document.querySelectorAll(".overlay");
+const accountMenuOverlay = document.querySelector(".account-menu-overlay");
+const accountMenuInfo = accountMenuOverlay.querySelector(".account-menu__info");
+const accountMenuInfoAvatar = accountMenuInfo.querySelector(".account-menu__info__avatar img");
+const accountMenuInfoFullname = accountMenuInfo.querySelector(".account-menu__info__fullname");
+const accountMenuInfoEmail = accountMenuInfo.querySelector(".account-menu__info__email");
+const accountMenuInfoStudy = accountMenuInfo.querySelector(".account-menu__info__study");
+const accountMenuInfoContacts = accountMenuInfo.querySelector(".account-menu__info__contacts");
+const accountMenuInfoDepartments = accountMenuInfo.querySelector(".account-menu__info__departments");
+const accountMenuInfoRole = accountMenuInfo.querySelector(".account-menu__info__role");
 
-const header = document.querySelector("header");
+const groupNumber = accountMenuInfoStudy.querySelector("#group-number");
+const courseNumber = accountMenuInfoStudy.querySelector("#course-number");
+const phoneNumber = accountMenuInfoContacts.querySelector("#phone-number");
+const telegramNickname = accountMenuInfoContacts.querySelector("#tg-nickname");
+const phoneNumberSubmitButton = accountMenuInfoContacts.querySelector(".phone-submit-button");
+const telegramNicknameSubmitButton = accountMenuInfoContacts.querySelector(".tg-submit-button");
+const departmentGrid = accountMenuInfoDepartments.querySelector(".departments-grid");
+
+// const accountMenuCloseButton = accountMenuOverlay.querySelector(".account-menu__close-button");
+const accountMenuSignOutButton = accountMenuOverlay.querySelector(".account-menu__sign-out-button");
 
 const canvas = document.createElement("canvas");
 const context = canvas.getContext("2d");
-const style = getComputedStyle(phone);
+const style = getComputedStyle(groupNumber);
 context.font = `${style.fontSize} ${style.fontFamily}`;
-
-let change_flag_phone = 0;
-let change_flag_telegram = 0;
 
 const cache = new Map();
 
 
+// =============================== //
+// ===== АСИНХРОННЫЕ ФУНКЦИИ ===== //
+// =============================== //
+
+// ===== запрос на сервер ===== //
+
 async function request(url, options = {}) {
-    if (cache.has(url)) return cache.get(url);
-
+    // if (cache.has(url)) return cache.get(url);
     try {
-        const res = await fetch(url, options);
+        const response = await fetch(url, options);
 
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
 
-        const data = (await res.json())['data'];
-        cache.set(url, data);
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+
+        const data = (await response.json())['data'];
+        // if (options['method'] !== 'POST') {cache.set(url, data);}
+
         return data;
     } catch (error) {
         console.error("Request failed:", error);
@@ -85,49 +80,120 @@ async function request(url, options = {}) {
     }
 }
 
-const overlays = document.querySelectorAll(".overlay");
+// ===== получение информации о текущей сессии ===== //
 
-overlays.forEach(overlay => {
-    overlay.addEventListener('mousedown', (e) => {
-        if (e.target === overlay) {
-            overlay.style.display = "none";
-        }
-    });
-});
+async function getUserSession() {
+    const data = await request(API_GET_USER_SESSION);
 
-function showMessage(label, text) {
-    const message = document.querySelector(".message-win");
-    const progress = document.querySelector(".progress");
+    navigationUser.src = data['avatar_link'];
+}
 
-    const main_label = message.querySelector(".text-1");
-    const aux_label = message.querySelector(".text-2");
+// ===== копирование нажатого текста ===== //
 
-    let timer1, timer2;
+async function copyFunc(event) {
+    const copyText = event.target.textContent;
+    await window.navigator.clipboard.writeText(copyText);
+}
 
-    main_label.textContent = label;
-    aux_label.textContent = text;
+// ===== отправление измененных контактов на сервер ===== //
 
-    message.classList.add("active");
-    progress.classList.add("active");
+async function changeContacts(type, value) {
+    const data = {
+        type: type,
+        value: value,
+    };
 
-    timer1 = setTimeout(() => {
-        message.classList.remove("active");
-    }, 5000); //1s = 1000 milliseconds
+    const options = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    };
 
-    timer2 = setTimeout(() => {
-        progress.classList.remove("active");
-    }, 5300);
+    await request(API_CHANGE_CONTACTS, options);
+}
 
-    message.classList.remove("show");
+// ===== выход из аккаунта ===== //
+
+async function logout() {
+    const options = {
+        method: 'POST',
+    };
+
+    await request(API_LOGOUT, options);
+}
+
+// ===== получение информации о пользователе ===== //
+
+async function getUserInfo() {
+    const data = await request(API_GET_USER_INFO);
+
+    const group = data['group'];
+    const year = Math.min(getCourse(data['year']), 6).toFixed();
+    const phone = data['phone'];
+    const telegram = data['telegram'];
+
+    const departments = data['departs'];
+    const roleTitle = data['role'];
+
+    accountMenuInfoAvatar.src = data['avatar_link'];
+    accountMenuInfoFullname.textContent = data['fullname'];
+    accountMenuInfoEmail.textContent = data['email'];
+
+    groupNumber.textContent = group;
+    courseNumber.textContent = `${year} курс`;
+
+    phoneNumber.value = `+7 (${phone.substring(2, 5)}) ${phone.substring(5, 8)}
+-${phone.substring(8, 10)}-${phone.substring(10, 12)}`;
+
+    telegramNickname.value = telegram;
+
+    if (departments.length === 1 && departments[0] === '') {
+        accountMenuInfoDepartments.style.display = "none";
+    } else {
+        accountMenuInfoDepartments.style.display = "block";
+        departmentGrid.replaceChildren();
+
+        departments.forEach(depart => addDepart(depart));
+    }
+
+    if (roleTitle === "Студент") {
+        accountMenuInfoRole.style.display = "none";
+    } else {
+        accountMenuInfoRole.style.display = "block";
+        accountMenuInfoRole.textContent = roleTitle;
+    }
 }
 
 
-// Вычисление курса обучения
-async function getCourse(year) {
-    const admission_year = new Date(year, 8, 1);
+// =================== //
+// ===== ФУНКЦИИ ===== //
+// =================== //
+
+// ===== появление сообщения ===== //
+
+function showMessage(label, text) {
+    messageMainLabel.textContent = label;
+    messageAuxLabel.textContent = text;
+
+    messageWindow.classList.add("active");
+    messageWindowProgress.classList.add("active");
+
+    setTimeout(() => {
+        messageWindow.classList.remove("active");
+    }, 5000);
+
+    setTimeout(() => {
+        messageWindowProgress.classList.remove("active");
+    }, 5300);
+}
+
+// ===== вычисление курса обучения ===== //
+
+function getCourse(year) {
+    const admissionYear = new Date(year, 8, 1);
     const now = new Date();
 
-    let course = now.getFullYear() - admission_year.getFullYear() + 1;
+    let course = now.getFullYear() - admissionYear.getFullYear() + 1;
 
     if (now.getMonth() < 8) {
         course--;
@@ -136,202 +202,53 @@ async function getCourse(year) {
     return course;
 }
 
-async function getUserSession() {
-    const response = await (await fetch('/api/get_user_session')).json();
+// ===== добавление департамента в сетку ===== //
 
-    if (response["status"] === "success") {
-        const data = response.data;
+function addDepart(departmentName) {
+    const newDepartment = document.createElement('span');
+    newDepartment.classList.add("depart");
+    newDepartment.textContent = departmentName;
 
-        user_icon.querySelector("img").src = data['avatar_link'];
-        return data;
-    }
+    departmentGrid.appendChild(newDepartment);
 }
 
-// Получение инфы о пользователе
-async function getUserInfo() {
-    const response = await fetch('/api/get_user_info');
-    const expand = await response.json();
 
-    if (expand["status"] === "success") {
-        const data = expand.data;
+// ===================== //
+// ===== ЛИСТЕНЕРЫ ===== //
+// ===================== //
 
-        let year = Math.min(await getCourse(data['year']), 7) % 7;
-        let phone_number = data['phone'];
-        let role_title = data['role'];
+// ===== подтверждения изменений контактов ===== //
 
-        const departments = data['departs'];
-
-        document.querySelector(".user_fullname").textContent = data['fullname'];
-        document.querySelector(".user_email").textContent = data['email'];
-        document.querySelector(".user_study #group #group-number").textContent = data['group'];
-        document.querySelector(".user_study #course #course-number").textContent = (year.toFixed() || " курс");
-        document.querySelector(".user_avatar img").src = data['avatar_link'];
-        user_icon.querySelector("img").src = data['avatar_link'];
-
-        if (phone_number !== null) {
-            phone.value = `+7 (${phone_number.substring(2, 5)}) ${phone_number.substring(5, 8)}
--${phone_number.substring(8, 10)}-${phone_number.substring(10, 12)}`;
-        } else {
-            phone.value = phone_number;
-        }
-        telegram.value = data['telegram'];
-
-        const role = document.querySelector(".user_role");
-        if (role_title === "Студент") {
-            role.style.display = "none";
-        } else {
-            role.style.display = "block";
-            role.querySelector("#role").textContent = role_title;
-        }
-
-        if (departments.length === 1 && departments[0] === '') {
-            department_block.style.display = "none";
-        } else {
-            department_block.style.display = "block";
-            departments_grid.replaceChildren();
-
-            departments.forEach(depart => addDepart(depart));
-        }
+phoneNumberSubmitButton.addEventListener("click", async (e) => {
+    if (phoneNumber.value.length < 18 && phoneNumber.value.length > 0) {
+        phoneNumber.classList.add("wrong");
     } else {
-        console.log(expand["status"], expand["message"]);
-    }
-}
+        phoneNumber.classList.remove("wrong");
+        phoneNumberSubmitButton.style.display = 'none';
+        let number = phoneNumber.value.replace(/\D/g, "");
+        if (phoneNumber.value.length > 0) {number = `+${number}`;}
 
-// Открытие карточки пользователя
-user_icon.addEventListener("click", async () => {
-    await getUserInfo();
-
-    header.style.display = "none";
-    const text_width_phone = context.measureText(phone.value || phone.placeholder).width;
-    phone.style.width = `${text_width_phone + 10}px`;
-    const text_width_telegram = context.measureText(telegram.value || telegram.placeholder).width;
-    telegram.style.width = `${text_width_telegram + 10}px`;
-
-    account_menu_overlay.style.display = "flex";
-});
-
-// Закрытие карточки пользователя (крестик)
-account_menu_close_btn.addEventListener("click", (e) => {
-    if (e.button === 0) {
-        header.style.display = "block";
-        account_menu_overlay.style.display = "none";
-        telegram.classList.remove("wrong");
-        phone.classList.remove("wrong");
+        await changeContacts("phone", number);
     }
 });
 
-// Закрытие карточки пользователя (оверлей)
-account_menu_overlay.addEventListener("click", (e) => {
-    if (e.target === account_menu_overlay && e.button === 0) {
-        header.style.display = "block";
-        account_menu_overlay.style.display = "none";
-        telegram.classList.remove("wrong");
-        phone.classList.remove("wrong");
+telegramNicknameSubmitButton.addEventListener("click", async (e) => {
+    if (telegramNickname.value.length <= 5 && telegramNickname.value.length > 0) {
+        telegramNickname.classList.add("wrong");
+    } else {
+        telegramNickname.classList.remove("wrong");
+        telegramNicknameSubmitButton.style.display = 'none';
+        let nickname = telegramNickname.value;
+
+        await changeContacts("telegram", nickname);
     }
 });
 
-// Выход из аккаунта
-logout_btn.addEventListener("click", async (e) => {
-    if (e.button === 0) {
-        const responseData = {
-            type: "logout"
-        };
+// ===== обработка изменений контактов ===== //
 
-        const response = await fetch('/api/logout', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(responseData)
-        });
-        
-        if (response.redirected) {
-            window.location.href = response.url;
-        }
-    }
-});
+phoneNumber.addEventListener("input", (e) => {
+    phoneNumberSubmitButton.style.display = 'flex';
 
-// Функции обработки телефона и почты
-async function handleClickOutside(event) {
-    const isClickInsidePhone = phone.contains(event.target);
-    const isClickInsideTelegram = telegram.contains(event.target);
-
-    if (!isClickInsidePhone) {
-        cleanup();
-        phone.classList.remove("active");
-        change_flag_phone = 0;
-
-        if (phone.value.length < 18 && phone.value.length > 0) {
-            phone.classList.add("wrong");
-        } else {
-            phone.classList.remove("wrong");
-            let number = phone.value.replace(/\D/g, "");
-            if (phone.value.length > 0) {number = `+${number}`;}
-            await changeContacts("phone", number);
-        }
-    }
-
-    if (!isClickInsideTelegram) {
-        cleanup();
-        telegram.classList.remove("active");
-        change_flag_telegram = 0;
-
-        if (telegram.value.length <= 5 && telegram.value.length > 0) {
-            telegram.classList.add("wrong");
-        } else {
-            telegram.classList.remove("wrong");
-            await changeContacts("telegram", telegram.value);
-        }
-    }
-}
-
-async function handleKeydown(event) {
-    if (event.key === 'Enter') {
-        cleanup();
-        phone.classList.remove("active");
-        telegram.classList.remove("active");
-        change_flag_telegram = 0;
-        change_flag_phone = 0;
-
-        if (phone.value.length < 18 && phone.value.length > 0) {
-            phone.classList.add("wrong");
-        } else {
-            phone.classList.remove("wrong");
-            let number = phone.value.replace(/\D/g, "");
-            if (phone.value.length > 0) {number = `+${number}`;}
-            await changeContacts("phone", number);
-        }
-
-        if (telegram.value.length <= 5 && telegram.value.length > 0) {
-            telegram.classList.add("wrong");
-        } else {
-            telegram.classList.remove("wrong");
-            await changeContacts("telegram", telegram.value);
-        }
-    }
-}
-
-function cleanup() {
-    document.removeEventListener("click", handleClickOutside);
-    document.removeEventListener("keydown", handleKeydown);
-}
-
-// Отправка измененных контактов в БД
-async function changeContacts(type, val) {
-    const responseData = {
-        type: type,
-        value: val
-    };
-
-    const response = await fetch('/api/change_contacts', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(responseData)
-    });
-
-    console.log(response.status, response.ok);
-}
-
-// Ввод телефона
-phone.addEventListener("input", (e) => {
     const target = e.target;
     let value = target.value.replace(/\D/g, "");
 
@@ -348,19 +265,11 @@ phone.addEventListener("input", (e) => {
 
     target.value = formatted;
     target.style.width = `${textWidth + 10}px`;
-
-    change_flag_phone = Math.min(change_flag_phone+1, 2);
-
-    if (change_flag_phone === 1) {
-        document.addEventListener("click", handleClickOutside);
-        document.addEventListener("keydown", handleKeydown);
-        target.classList.add("active");
-        change_flag_phone = 2;
-    }
 });
 
-// Ввод телеграма
-telegram.addEventListener("input", (e) => {
+telegramNickname.addEventListener("input", (e) => {
+    telegramNicknameSubmitButton.style.display = 'flex';
+
     const target = e.target;
     let value = target.value;
 
@@ -374,104 +283,71 @@ telegram.addEventListener("input", (e) => {
 
     target.value = formatted;
     target.style.width = `${textWidth + 10}px`;
+});
 
-    change_flag_telegram = Math.min(change_flag_telegram+1, 2);
+// ===== открытие карточки пользователя ===== //
 
-    if (change_flag_telegram === 1) {
-        document.addEventListener("click", handleClickOutside);
-        document.addEventListener("keydown", handleKeydown);
-        target.classList.add("active");
-        change_flag_telegram = 2;
+navigationUser.addEventListener("click", async () => {
+    await getUserInfo();
+
+    pageHeader.style.display = "none";
+    const textWidthPhone = context.measureText(phoneNumber.value || phoneNumber.placeholder).width;
+    phoneNumber.style.width = `${textWidthPhone + 10}px`;
+    const textWidthTelegram = context.measureText(telegramNickname.value || telegramNickname.placeholder).width;
+    telegramNickname.style.width = `${textWidthTelegram + 10}px`;
+
+    accountMenuOverlay.style.display = "flex";
+});
+
+// ===== закрытие карточки пользователя ===== //
+
+accountMenuOverlay.addEventListener("mousedown", (e) => {
+    if (e.target === accountMenuOverlay && e.button === 0) {
+        pageHeader.style.display = "block";
+
+        telegramNickname.classList.remove("wrong");
+        phoneNumber.classList.remove("wrong");
+
+        phoneNumberSubmitButton.style.display = "none";
+        telegramNicknameSubmitButton.style.display = "none";
     }
 });
 
-function copyFunc() {
-    const copyText = document.querySelector(".user_email").textContent;
-    window.navigator.clipboard.writeText(copyText);
-}
+// ===== выход из аккаунта ===== //
 
-// Департаменты
-function addDepart(depart_name) {
-    const newDept = document.createElement('span');
-    newDept.classList.add("depart");
-    newDept.textContent = depart_name;
-    departments_grid.appendChild(newDept);
-}
+accountMenuSignOutButton.addEventListener("click", async (e) => {
+    if (e.button === 0) await logout();
+});
 
+// ===== закрытие любого оверлея ===== //
 
-const nav_link_funds = document.querySelector(".navigation__link#funds");
-const nav_link_apps = document.querySelector(".navigation__link#apps");
+overlays.forEach(overlay => {
+    overlay.addEventListener("mousedown", (e) => {
+        if (e.target === overlay && e.button === 0) {
+            overlay.style.display = "none";
+        }
+    });
+});
 
+// ===== переход по навигации ===== //
 
-
-// async function getFunds() {
-//     const response = await fetch('/api/get_funds');
-//     const expand = await response.json();
-//
-//
-//     const fundings_create_btn = document.querySelector(".funding__create");
-//     const fundings_page = document.querySelector(".funding");
-//
-//     if (expand["status"] === "success") {
-//         const data = expand.data;
-//
-//         if (data[2]) {
-//             fundings_create_btn.style.display = "flex";
-//         } else {
-//             fundings_create_btn.style.display = "none";
-//         }
-//         fundings_page.style.display = "block";
-//         console.log(data);
-//
-//     } else {
-//         console.log(expand["status"]);
-//     }
-// }
-//
-// function highlightLink(link) {
-//     navigation_link.forEach(element =>
-//         element.classList.remove("active")
-//     );
-//
-//     link.classList.add("active");
-//     console.log(link.classList);
-// }
-
-// TODO: добавить в отдельный конфиг
-const pathnames = {
-    "funds": '/funds',
-    "apps": '/apps',
-    "guide": '/guide',
-    "department": '/department',
-    "settings": '/settings',
-}
-
-// TODO: сделать единный листенер для переключения
-// nav_link_funds.addEventListener("click", async (e) => {
-//     // fundings_page.style.display = "block";
-//     const pathname = pathnames["fundings"];
-//
-//     if (window.location.pathname !== pathname) {
-//         window.location.href = pathname
-//     }
-// });
-//
-// nav_link_apps.addEventListener("click", async (e) => {
-//     // fundings_page.style.display = "none";
-//     // console.log("Unpressed");
-//     const pathname = pathnames["applications"];
-//
-//     if (window.location.pathname !== pathname) {
-//         window.location.href = pathname
-//     }
-// });
-
-navigation_link.forEach(link =>
-    link.addEventListener("click", async (e) => {
-        const pathname = pathnames[link.id];
+navigationLinks.forEach(link =>
+    link.addEventListener("click",() => {
+        const pathname = PATH_NAMES[link.id];
 
         if (window.location.pathname !== pathname) {
             window.location.href = pathname
         }
     })
 )
+
+
+// ============================= //
+// ===== ЗАГРУЗКА СТРАНИЦЫ ===== //
+// ============================= //
+
+document.addEventListener('DOMContentLoaded', async function () {
+    document.querySelector(`.navigation__link#${window.location.pathname.substring(1).split('/')[0]}`).classList.add("active");
+
+    await getUserSession();
+});

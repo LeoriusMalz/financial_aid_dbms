@@ -16,7 +16,7 @@ body {
     margin: 0;
 }
 
-header {
+.page-header {
     /*background-color: rgba(25, 25, 25, 0);*/
     display: block;
     position: fixed;
@@ -39,7 +39,7 @@ header {
     font-family: "VK Sans Display", serif;
 }
 
-.navigation {
+.page-header-navigation {
     display: block;
     position: relative;
 
@@ -78,7 +78,7 @@ header {
 .navigation__user img {
     border-radius: 100%;
     width: 50px;
-    margin-top: 0px;
+    margin-top: 0;
 
     cursor: pointer;
     transition: border 0.2s, width 0.2s, box-shadow 1s;
@@ -132,14 +132,14 @@ header {
                  0 0 20px var(--color);
 }
 
-.space {
+.navigation-space {
     display: block;
     height: 60px;
 }
 
 /* ========= Окно сообщения ========= */
 
-.message-win {
+.message-window {
     position: fixed;
     top: 0;
     right: calc(50vw - 100px);
@@ -160,16 +160,16 @@ header {
     font-family: "VK Sans Display", serif;
 }
 
-.message-win.active {
+.message-window.active {
     transform: translateY(130%);
 }
 
-.message-win .mw-content {
+.message-window .message-window-content {
     display: flex;
     align-items: center;
 }
 
-.mw-content .check {
+.message-window-content .check {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -181,24 +181,24 @@ header {
     border-radius: 50%;
 }
 
-.mw-content .message {
+.message-window-content .message-window-content__message {
     display: flex;
     flex-direction: column;
     margin: 0 20px;
 }
 
-.message .text {
+.message-window-content__message .message__text-2 {
     font-size: 16px;
     font-weight: 400;
     color: #ffffff;
 }
 
-.message .text.text-1 {
+.message-window-content__message .message__text-1 {
     font-weight: 600;
     color: #ffffff;
 }
 
-.message-win .close {
+.message-window .close {
     position: absolute;
     top: 10px;
     right: 15px;
@@ -207,11 +207,11 @@ header {
     opacity: 0.7;
 }
 
-.message-win .close:hover {
+.message-window .close:hover {
     opacity: 1;
 }
 
-.message-win .progress {
+.message-window .message-window-progress {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -220,7 +220,7 @@ header {
 
 }
 
-.message-win .progress:before {
+.message-window .message-window-progress:before {
     content: "";
     position: absolute;
     bottom: 0;
@@ -233,11 +233,11 @@ header {
                 0 0 4px rgba(255, 255, 255, 0.7);
 }
 
-.progress.active:before {
-    animation: progress 5s linear forwards;
+.message-window-progress.active:before {
+    animation: message-window-progress 5s linear forwards;
 }
 
-@keyframes progress {
+@keyframes message-window-progress {
     100% {
         right: 100%;
     }

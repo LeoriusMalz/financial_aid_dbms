@@ -15,7 +15,7 @@ const MONTHS = {
 const API_GET_APPS = '/api/get_applications';
 const API_GET_APP = '/api/get_application';
 const API_DELETE_APP = '/api/delete_application';
-// const APP_ID = null;
+
 
 const applicationPage = document.querySelector(".application-page");
 const applicationEmptyPage = applicationPage.querySelector(".application-empty");
@@ -31,6 +31,7 @@ const applicationWindowCatsListTable = applicationWindow.querySelector(".categor
 const applicationWindowButtons = applicationWindow.querySelector(".application-window__buttons");
 const downloadButton = applicationWindowButtons.querySelector(".button.download");
 const deleteButton = applicationWindowButtons.querySelector(".button.delete");
+
 
 // =============================== //
 // ===== АСИНХРОННЫЕ ФУНКЦИИ ===== //
@@ -80,6 +81,7 @@ async function deleteApplication(id) {
         hideApplication(true);
     }
 }
+
 
 // =================== //
 // ===== ФУНКЦИИ ===== //
@@ -218,6 +220,7 @@ deleteButton.addEventListener('click', async (e) => {
         await deleteApplication(e.target.id);
     }
 });
+
 
 // ============================= //
 // ===== ЗАГРУЗКА СТРАНИЦЫ ===== //
